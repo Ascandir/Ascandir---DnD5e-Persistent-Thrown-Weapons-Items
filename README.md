@@ -12,6 +12,10 @@ Geworfene Waffen verschwinden nicht mehr einfach:
 - **Alle Waffen werfbar** – Nahkampfwaffen ohne die Eigenschaft „Wurfwaffe“ bekommen im Angriffsdialog den Modus „Geworfen (improvisiert)“. Außerdem zählt ein Nahkampfangriff auf ein Ziel außerhalb der Reichweite automatisch als Wurf.
 - **Ausgenommen**: Munition und Waffen mit Munition (Bögen, Armbrüste, Schleudern) sowie Darts/Wurfpfeile (Liste in den Einstellungen anpassbar). Waffen mit der Eigenschaft „Zurückkehrend“ fliegen hin und zurück und bleiben nicht liegen.
 
+## Zusammenspiel mit anderen Modulen
+
+- **Corpse Loot:** Lebt der Gegner noch, fragt ein Doppelklick auf ihn, ob du eine steckende Waffe herausziehen oder etwas anderes tun willst (z. B. bestehlen). Bei „Andere Aktion“ einfach nochmal doppelklicken. Ist der Gegner tot, übernimmt Corpse Loot wie gewohnt – die Waffe liegt dann in seinem Inventar.
+
 ## Ablauf am Tisch
 
 1. Ziel anvisieren (Taste T), dann normal mit der Waffe angreifen und im Angriffsdialog „Geworfen“ wählen.

@@ -45,12 +45,9 @@ export async function onRollAttack(rolls, { subject } = {}) {
   const itemData = singleItemData(item);
   const returning = !!item.system.properties?.has("ret");
 
-  // Hit, miss or fumble?
-  const ac = roll.options?.target ?? target.actor?.system?.attributes?.ac?.value;
-  const isCrit = !!roll.isCritical;
-  const isFumble = !!roll.isFumble;
-  const hit = isCrit || (!isFumble && ((ac == null) || (roll.total >= ac)));
-  const result = hit ? "hit" : (isFumble ? "fumble" : "miss");
+  // Hit, miss or fumble? (players often can't see a foreign NPC's AC, so ask the GM)
+  const hit = await isHit(roll, target);
+  const result = hit ? "hit" : (roll.isFumble ? "fumble" : "miss");
 
   const style = styleFor(item);
   const from = { x: attacker.center.x, y: attacker.center.y };
@@ -85,6 +82,21 @@ export async function onRollAttack(rolls, { subject } = {}) {
     itemData, result, to, stuckAngle,
     rotationDeg: style === "straight" ? rotationDeg : Math.round(Math.random() * 360)
   }).catch(err => console.error(`${MODULE_ID} |`, err));
+}
+
+/** Armor class of a target token; asks the GM if this client can't see it. */
+async function targetAC(token, roll) {
+  const known = roll?.options?.target ?? token.actor?.system?.attributes?.ac?.value;
+  if ( Number.isFinite(known) ) return known;
+  const res = await requestGM("getAC", { sceneId: canvas.scene.id, tokenId: token.id }).catch(() => null);
+  return Number.isFinite(res?.ac) ? res.ac : null;
+}
+
+async function isHit(roll, token) {
+  if ( roll.isCritical ) return true;
+  if ( roll.isFumble ) return false;
+  const ac = await targetAC(token, roll);
+  return (ac == null) || (roll.total >= ac);
 }
 
 /** Where a missed weapon lands. */
@@ -201,7 +213,9 @@ gmHandlers.resolveThrow = async ({ sceneId, targetTokenId, attackerName, itemDat
   if ( (result === "hit") && setting("stickOnHit") && tActor ) {
     const data = foundry.utils.deepClone(itemData);
     const [created] = await tActor.createEmbeddedDocuments("Item", [data]);
-    await tActor.setFlag(MODULE_ID, `stuck.${created.id}`, { angle: stuckAngle ?? 0, by: attackerName ?? null });
+    await tDoc.setFlag(MODULE_ID, `stuck.${created.id}`, {
+      angle: stuckAngle ?? 0, by: attackerName ?? null, img: data.img, name: data.name
+    });
     await chat(L("Chat.Stuck", { item: itemData.name, target: tDoc.name }));
     return { stuckItemId: created.id };
   }
@@ -235,8 +249,8 @@ gmHandlers.pullTake = async ({ sceneId, targetTokenId, itemId, removerActorUuid 
   const user = game.users.get(userId);
   if ( !remover || !user || !remover.testUserPermission(user, "OWNER") ) return { ok: false, reason: "permission" };
   const data = singleItemData(item);
-  const angle = tActor.getFlag(MODULE_ID, `stuck.${itemId}`)?.angle ?? 0;
-  await tActor.unsetFlag(MODULE_ID, `stuck.${itemId}`);
+  const angle = tDoc.getFlag(MODULE_ID, `stuck.${itemId}`)?.angle ?? 0;
+  await tDoc.unsetFlag(MODULE_ID, `stuck.${itemId}`);
   await takeOne(tActor, item);
   const given = await giveItem(remover, data);
   return { ok: true, itemId: given.id, angle };
@@ -251,7 +265,7 @@ gmHandlers.pullReturn = async ({ sceneId, targetTokenId, removerActorUuid, itemI
   const data = singleItemData(item);
   await takeOne(remover, item);
   const [created] = await tActor.createEmbeddedDocuments("Item", [data]);
-  await tActor.setFlag(MODULE_ID, `stuck.${created.id}`, { angle: angle ?? 0 });
+  await tDoc.setFlag(MODULE_ID, `stuck.${created.id}`, { angle: angle ?? 0, img: data.img, name: data.name });
   return { ok: true };
 };
 
@@ -262,8 +276,8 @@ gmHandlers.pullDrop = async ({ sceneId, targetTokenId, itemId }) => {
   const item = tActor?.items.get(itemId);
   if ( !item ) return { ok: false };
   const data = singleItemData(item);
-  const angle = tActor.getFlag(MODULE_ID, `stuck.${itemId}`)?.angle ?? 0;
-  await tActor.unsetFlag(MODULE_ID, `stuck.${itemId}`);
+  const angle = tDoc.getFlag(MODULE_ID, `stuck.${itemId}`)?.angle ?? 0;
+  await tDoc.unsetFlag(MODULE_ID, `stuck.${itemId}`);
   await takeOne(tActor, item);
   const gs = scene.grid.size;
   const w = (tDoc.width * gs) / 2;
@@ -276,9 +290,14 @@ gmHandlers.pullDrop = async ({ sceneId, targetTokenId, itemId }) => {
 };
 
 gmHandlers.clearStuck = async ({ sceneId, targetTokenId, itemId }) => {
-  const tActor = getSceneToken(sceneId, targetTokenId)?.actor;
-  if ( tActor ) await tActor.unsetFlag(MODULE_ID, `stuck.${itemId}`);
+  const tDoc = getSceneToken(sceneId, targetTokenId);
+  if ( tDoc ) await tDoc.unsetFlag(MODULE_ID, `stuck.${itemId}`);
   return { ok: true };
+};
+
+gmHandlers.getAC = async ({ sceneId, tokenId }) => {
+  const ac = getSceneToken(sceneId, tokenId)?.actor?.system?.attributes?.ac?.value;
+  return { ac: Number.isFinite(ac) ? ac : null };
 };
 
 gmHandlers.applyDamage = async ({ sceneId, targetTokenId, damages }) => {
@@ -293,7 +312,10 @@ gmHandlers.applyDamage = async ({ sceneId, targetTokenId, damages }) => {
 export function onDeleteItem(item) {
   const actor = item.parent;
   if ( !(actor instanceof Actor) || (game.users.activeGM?.id !== game.user.id) ) return;
-  if ( actor.getFlag(MODULE_ID, `stuck.${item.id}`) ) actor.unsetFlag(MODULE_ID, `stuck.${item.id}`);
+  const docs = actor.isToken ? [actor.token] : (actor.getActiveTokens?.(false, true) ?? []);
+  for ( const doc of docs ) {
+    if ( doc?.getFlag(MODULE_ID, `stuck.${item.id}`) ) doc.unsetFlag(MODULE_ID, `stuck.${item.id}`);
+  }
 }
 
 /* ============================================ */
@@ -325,7 +347,7 @@ function meleeMode(item) {
 }
 
 async function pullOut(targetToken, itemId) {
-  const item = targetToken.actor?.items.get(itemId);
+  const item = getStuckEntries(targetToken).find(e => e.itemId === itemId);
   if ( !item ) return;
   const sceneId = canvas.scene.id;
   const remover = getActingToken();
@@ -380,8 +402,7 @@ async function pullOut(targetToken, itemId) {
   const roll = rolls?.[0];
   if ( !roll ) return;
 
-  const ac = roll.options?.target ?? targetToken.actor?.system?.attributes?.ac?.value;
-  const hit = roll.isCritical || (!roll.isFumble && ((ac == null) || (roll.total >= ac)));
+  const hit = await isHit(roll, targetToken);
 
   if ( hit ) {
     const dmg = await activity.rollDamage({ isCritical: roll.isCritical, attackMode }, { configure: false });
@@ -414,19 +435,74 @@ function groundTokenAt(point) {
   return hits.at(-1) ?? null;
 }
 
+/** Tokens whose normal double-click (e.g. steal / loot window) is allowed through for a few seconds. */
+const bypass = new Map();
+
+/** A non-ground token with stuck weapons under the point. */
+function stuckTokenAt(point) {
+  const hits = canvas.tokens.placeables.filter(t => t.visible && !isGroundToken(t)
+    && t.bounds.contains(point.x, point.y) && getStuckEntries(t).length);
+  return hits.at(-1) ?? null;
+}
+
 function hitAt(point) {
   const stuck = stuckIconAt(point);
   if ( stuck ) return { kind: "stuck", ...stuck };
   const ground = groundTokenAt(point);
   if ( ground ) return { kind: "ground", token: ground };
+  const token = stuckTokenAt(point);
+  if ( token ) return { kind: "stuckToken", token };
   return null;
 }
 
-/** Whether we take over clicks on this hit (players always; the GM only while acting with a token). */
+/** Dead creatures are left to looting (e.g. Corpse Loot) – the weapon is in their inventory. */
+function isDeadToken(token) {
+  const doc = token?.document;
+  return !!(doc?.hasStatusEffect?.("dead") || token?.actor?.statuses?.has("dead"));
+}
+
+/** Whether we take over clicks on this hit. */
 function shouldIntercept(hit) {
+  if ( hit.token && ((bypass.get(hit.token.id) ?? 0) > Date.now()) ) return false;
+  if ( (hit.kind !== "ground") && isDeadToken(hit.token) ) return false;
+  if ( hit.kind === "stuckToken" ) {
+    // Only for players pulling from a creature that isn't theirs, never on their own token
+    if ( game.user.isGM || hit.token.document.isOwner ) return false;
+    return !!getActingToken();
+  }
   if ( !game.user.isGM ) return true;
   if ( hit.kind === "stuck" ) return true;
   return !!getActingToken();
+}
+
+/** Ask what to do when double-clicking a creature with weapons stuck in it. */
+async function chooseStuckAction(token) {
+  const entries = getStuckEntries(token);
+  if ( !entries.length ) return;
+  const DialogV2 = foundry.applications.api.DialogV2;
+  const buttons = entries.map((e, i) => ({
+    action: `pull-${i}`,
+    label: L("Dialog.Pull", { item: e.name }),
+    icon: "fa-solid fa-hand-fist",
+    default: i === 0
+  }));
+  buttons.push({ action: "other", label: L("Dialog.Other"), icon: "fa-solid fa-arrow-right" });
+  let choice = null;
+  try {
+    choice = await DialogV2.wait({
+      window: { title: token.name, icon: "fa-solid fa-crosshairs" },
+      content: `<p>${L("Dialog.Content", { target: token.name })}</p>`,
+      buttons,
+      rejectClose: false
+    });
+  } catch { choice = null; }
+  if ( !choice ) return;
+  if ( choice === "other" ) {
+    bypass.set(token.id, Date.now() + 8000);
+    return ui.notifications.info(L("Dialog.OtherHint"));
+  }
+  const entry = entries[Number(choice.split("-")[1])];
+  if ( entry ) pullOut(token, entry.itemId);
 }
 
 let lastDown = { t: 0, x: 0, y: 0 };
@@ -436,8 +512,13 @@ function canvasElement() {
   return canvas?.app?.canvas ?? canvas?.app?.view ?? null;
 }
 
+function isCanvasTarget(event) {
+  const el = canvasElement();
+  return !!el && ((event.target === el) || (event.target?.id === "board"));
+}
+
 function onPointerDown(event) {
-  if ( (event.button !== 0) || !canvas?.ready || (event.target !== canvasElement()) ) return;
+  if ( (event.button !== 0) || !canvas?.ready || !isCanvasTarget(event) ) return;
   let point;
   try { point = canvas.canvasCoordinatesFromClient({ x: event.clientX, y: event.clientY }); }
   catch { point = canvas.stage.worldTransform.applyInverse({ x: event.clientX, y: event.clientY }); }
@@ -455,18 +536,32 @@ function onPointerDown(event) {
   if ( !isDouble ) return;
 
   if ( hit.kind === "ground" ) pickUp(hit.token);
+  else if ( hit.kind === "stuckToken" ) chooseStuckAction(hit.token);
   else pullOut(hit.token, hit.itemId);
 }
 
 function onPointerUp(event) {
   if ( !swallowUp || (event.button !== 0) ) return;
   swallowUp = false;
-  if ( event.target === canvasElement() ) event.stopImmediatePropagation();
+  if ( isCanvasTarget(event) ) event.stopImmediatePropagation();
+}
+
+/** Some modules listen for DOM double-clicks; swallow those too while we handle the click. */
+let swallowDbl = 0;
+function onDblClick(event) {
+  if ( (performance.now() - swallowDbl) < 600 && isCanvasTarget(event) ) {
+    event.stopImmediatePropagation();
+    event.preventDefault();
+  }
 }
 
 export function registerInput() {
-  window.addEventListener("pointerdown", onPointerDown, { capture: true });
+  window.addEventListener("pointerdown", e => {
+    onPointerDown(e);
+    if ( swallowUp ) swallowDbl = performance.now();
+  }, { capture: true });
   window.addEventListener("pointerup", onPointerUp, { capture: true });
+  window.addEventListener("dblclick", onDblClick, { capture: true });
 }
 
 export { getStuckEntries };

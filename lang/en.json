@@ -106,6 +106,12 @@
         "Name": "Chat messages",
         "Hint": "Short chat notes when a weapon sticks, fumbles, is picked up or pulled out."
       }
+    },
+    "Dialog": {
+      "Pull": "Pull out {item}",
+      "Other": "Something else (e.g. steal)",
+      "Content": "Something is stuck in <strong>{target}</strong>. What do you want to do?",
+      "OtherHint": "Double-click the token again now for the normal action."
     }
   }
 }

@@ -106,6 +106,12 @@
         "Name": "Chat-Nachrichten",
         "Hint": "Kurze Chat-Meldungen bei Stecken, Patzer, Aufheben und Herausziehen."
       }
+    },
+    "Dialog": {
+      "Pull": "{item} herausziehen",
+      "Other": "Andere Aktion (z. B. bestehlen)",
+      "Content": "In <strong>{target}</strong> steckt etwas. Was willst du tun?",
+      "OtherHint": "Doppelklicke den Token jetzt noch einmal für die normale Aktion."
     }
   }
 }

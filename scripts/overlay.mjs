@@ -3,12 +3,21 @@ import { pointRotation } from "./anim.mjs";
 
 const OVERLAY = Symbol("aptwStuckOverlay");
 
-/** Stuck entries of an actor that still exist as items: [{itemId, angle, img, name}] */
-export function getStuckEntries(actor) {
-  const stuck = actor?.getFlag(MODULE_ID, "stuck") ?? {};
+/**
+ * Weapons stuck in a token: [{itemId, angle, img, name}].
+ * Stored on the TokenDocument (not the actor), because players often have no access to a foreign NPC's actor.
+ */
+export function getStuckEntries(tokenOrDoc) {
+  const doc = tokenOrDoc?.document ?? tokenOrDoc;
+  const stuck = doc?.getFlag?.(MODULE_ID, "stuck") ?? {};
+  const actor = doc?.actor;
   return Object.entries(stuck)
-    .filter(([id]) => actor.items.has(id))
-    .map(([itemId, v]) => ({ itemId, ...v, img: actor.items.get(itemId).img, name: actor.items.get(itemId).name }));
+    .filter(([id, v]) => v && (!actor?.items || actor.items.has(id)))
+    .map(([itemId, v]) => {
+      const item = actor?.items?.get(itemId);
+      return { itemId, angle: v.angle ?? 0, img: item?.img ?? v.img, name: item?.name ?? v.name ?? "?" };
+    })
+    .filter(e => e.img);
 }
 
 /** Geometry of the stuck icons of a token, in token-local coordinates. */
@@ -35,8 +44,8 @@ function iconLayout(token, entries) {
 
 /** (Re)build the stuck-weapon icons on a token. */
 export async function refreshStuckOverlay(token) {
-  if ( !token || token.destroyed || !token.actor ) return;
-  const entries = getStuckEntries(token.actor);
+  if ( !token || token.destroyed ) return;
+  const entries = getStuckEntries(token);
   let c = token[OVERLAY];
   if ( c?.destroyed ) c = token[OVERLAY] = null;
 
@@ -81,7 +90,7 @@ export function stuckIconAt(point) {
     for ( const l of c._aptwLayout ) {
       const x = token.x + l.x;
       const y = token.y + l.y;
-      if ( Math.hypot(point.x - x, point.y - y) <= (l.size * 0.45) ) return { token, itemId: l.itemId };
+      if ( Math.hypot(point.x - x, point.y - y) <= (l.size * 0.6) ) return { token, itemId: l.itemId };
     }
   }
   return null;
@@ -100,7 +109,6 @@ export function registerOverlayHooks() {
     if ( flags?.refreshSize || flags?.refreshShape ) refreshStuckOverlay(token);
   });
   Hooks.on("updateToken", doc => { if ( doc.object ) refreshStuckOverlay(doc.object); });
-  Hooks.on("updateActor", actor => refreshActorTokens(actor));
   for ( const hook of ["createItem", "deleteItem"] ) {
     Hooks.on(hook, item => { if ( item.parent instanceof Actor ) refreshActorTokens(item.parent); });
   }
