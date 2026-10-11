@@ -109,19 +109,39 @@ export function ftToPx(ft) {
   return (ft / canvas.dimensions.distance) * canvas.dimensions.size;
 }
 
-/** Distance in scene units between the edges of two tokens (adjacent = one grid step). */
+/** Grid cells covered by a token: {r0, r1, c0, c1} (inclusive). */
+function cellRect(token) {
+  const b = token.bounds;
+  const inset = Math.min(2, b.width / 4, b.height / 4);
+  const a = canvas.grid.getOffset({ x: b.left + inset, y: b.top + inset });
+  const z = canvas.grid.getOffset({ x: b.right - inset, y: b.bottom - inset });
+  return { r0: Math.min(a.i, z.i), r1: Math.max(a.i, z.i), c0: Math.min(a.j, z.j), c1: Math.max(a.j, z.j) };
+}
+
+/**
+ * Distance between two tokens the way it's counted at the table:
+ * on a square grid by squares (neighbouring square, also diagonal = one grid step, e.g. 5 ft),
+ * otherwise edge to edge plus one grid step.
+ */
 export function tokenGapDistance(a, b) {
+  const d = canvas.dimensions.distance;
+  if ( canvas.grid.isSquare ) {
+    try {
+      const A = cellRect(a);
+      const B = cellRect(b);
+      const dr = Math.max(0, B.r0 - A.r1, A.r0 - B.r1);
+      const dc = Math.max(0, B.c0 - A.c1, A.c0 - B.c1);
+      return Math.max(dr, dc) * d;
+    } catch(err) {
+      console.warn(`${MODULE_ID} |`, err);
+    }
+  }
   const ab = a.bounds;
   const bb = b.bounds;
   const dx = Math.max(0, bb.left - ab.right, ab.left - bb.right);
   const dy = Math.max(0, bb.top - ab.bottom, ab.top - bb.bottom);
-  let gap;
-  try {
-    gap = canvas.grid.measurePath([{ x: 0, y: 0 }, { x: dx, y: dy }]).distance;
-  } catch {
-    gap = (Math.hypot(dx, dy) / canvas.dimensions.size) * canvas.dimensions.distance;
-  }
-  return gap + canvas.dimensions.distance;
+  const gap = (Math.hypot(dx, dy) / canvas.dimensions.size) * d;
+  return gap + d;
 }
 
 /** Is the given token one of our ground item tokens? */

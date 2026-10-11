@@ -196,6 +196,13 @@ async function createGroundToken(scene, point, itemData, rotationDeg, droppedBy)
   const size = 0.5;
   const scale = Math.max(0.1, setting("groundSize") / size);
   const modes = CONST.TOKEN_DISPLAY_MODES;
+  // Lie clearly inside one square (slightly jittered so several items don't cover each other)
+  if ( (canvas.scene?.id === scene.id) && canvas.grid.isSquare ) {
+    try {
+      const c = canvas.grid.getCenterPoint(point);
+      point = { x: c.x + randomBetween(-0.12, 0.12) * gs, y: c.y + randomBetween(-0.12, 0.12) * gs };
+    } catch {}
+  }
   const data = {
     name: itemData.name,
     x: Math.round(point.x - ((gs * size) / 2)),
