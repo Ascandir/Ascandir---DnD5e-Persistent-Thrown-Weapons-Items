@@ -6,7 +6,7 @@ Geworfene Waffen verschwinden nicht mehr einfach:
 
 - **Wurf-Animation** – Speere fliegen mit der Spitze voraus, Äxte und Hämmer drehen sich, Dolche wirbeln schnell. Alle Spieler sehen die Animation.
 - **Treffer** – die Waffe bleibt im Gegner stecken: Sie wandert in sein Inventar (kann also nach dem Tod gelootet werden, z. B. mit Corpse Loot) und ist als kleines Symbol am Token zu sehen.
-- **Herausziehen** – Doppelklick auf das steckende Symbol (mit eigenem Token in Reichweite). Das zählt als Angriff mit der Waffe: Angriffswurf gegen die RK, bei Treffer Schadenswurf (Schaden wird automatisch angewendet, abschaltbar). Die Waffe landet im Inventar des Herausziehenden.
+- **Herausziehen** – Doppelklick auf das steckende Symbol (mit eigenem Token in Reichweite). Das zählt als Angriff mit der Waffe: Angriffswurf gegen die RK, bei Treffer Schadenswurf. Ob der Schaden automatisch abgezogen wird oder nur als Chatkarte erscheint, stellt der SL ganz oben in den Moduleinstellungen ein. Die Waffe landet im Inventar des Herausziehenden.
 - **Fehlwurf** – die Waffe landet als kleines Token in der Nähe des Ziels auf dem Boden. **Patzer (natürliche 1)** – sie fliegt deutlich weiter weg.
 - **Aufheben** – Doppelklick auf die liegende Waffe (eigenen Token in Reichweite ausgewählt). Hatte der Charakter die Waffe vorher, wird der Stapel einfach wieder aufgefüllt.
 - **Alle Waffen werfbar** – Nahkampfwaffen ohne die Eigenschaft „Wurfwaffe“ bekommen im Angriffsdialog den Modus „Geworfen (improvisiert)“. Außerdem zählt ein Nahkampfangriff auf ein Ziel außerhalb der Reichweite automatisch als Wurf.

@@ -68,7 +68,7 @@
       },
       "pullAutoDamage": {
         "Name": "Pull out: apply damage automatically",
-        "Hint": "If the pull-out attack hits, its damage is applied to the target right away."
+        "Hint": "On: if the pull-out attack hits, damage is subtracted from the target right away. Off: damage only appears as a damage chat card and the GM applies it from there (or not)."
       },
       "pullStaysOnMiss": {
         "Name": "Pull out: stays stuck on a miss",

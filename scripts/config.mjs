@@ -26,6 +26,9 @@ export function registerSettings() {
     ...extra
   });
 
+  // --- Wichtigster Schalter für den SL: ganz oben ---
+  reg("pullAutoDamage", Boolean, true);
+
   // --- Wurf-Erkennung ---
   reg("improvisedThrow", Boolean, true, { requiresReload: true });
   reg("autoDetectRange", Boolean, true);
@@ -42,7 +45,6 @@ export function registerSettings() {
   // --- Aufheben / Herausziehen ---
   reg("pickupRange", Number, 5, { range: { min: 0, max: 30, step: 5 } });
   reg("pullRange", Number, 5, { range: { min: 0, max: 30, step: 5 } });
-  reg("pullAutoDamage", Boolean, true);
   reg("pullStaysOnMiss", Boolean, false);
 
   // --- Animation ---
