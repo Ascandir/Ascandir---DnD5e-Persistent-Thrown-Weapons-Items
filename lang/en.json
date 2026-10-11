@@ -1,0 +1,111 @@
+{
+  "ascandir-persistent-thrown-weapons": {
+    "ImprovisedThrow": "Thrown (improvised)",
+    "ChatAlias": "Thrown Weapons",
+    "Style": {
+      "spin": "Spinning",
+      "fastSpin": "Fast spinning",
+      "straight": "Straight (point first)"
+    },
+    "Warn": {
+      "NoGM": "No GM online – thrown weapons can't be left behind right now.",
+      "SelectToken": "Select your token first.",
+      "TooFar": "Too far away – you must be within {range} ft.",
+      "NoPermission": "You don't have permission to do that."
+    },
+    "Chat": {
+      "Stuck": "<strong>{item}</strong> gets stuck in <strong>{target}</strong>!",
+      "Fumble": "Fumble! <strong>{actor}</strong> hurls <strong>{item}</strong> way off target.",
+      "PickedUp": "<strong>{actor}</strong> picks up <strong>{item}</strong>.",
+      "Pulled": "<strong>{actor}</strong> rips <strong>{item}</strong> out of <strong>{target}</strong> …",
+      "PulledSelf": "<strong>{actor}</strong> pulls out <strong>{item}</strong>.",
+      "StillStuck": "{item} is stuck fast and stays in."
+    },
+    "Settings": {
+      "improvisedThrow": {
+        "Name": "All melee weapons can be thrown",
+        "Hint": "Weapons without the Thrown property get a \"Thrown (improvised)\" mode in the attack dialog. Requires reload."
+      },
+      "autoDetectRange": {
+        "Name": "Detect throws by distance",
+        "Hint": "A melee attack against a target out of reach counts as a throw."
+      },
+      "excludeNames": {
+        "Name": "Excluded names",
+        "Hint": "Comma separated. Weapons whose name contains one of these never stay behind (ammunition is always ignored)."
+      },
+      "stickOnHit": {
+        "Name": "Hits get stuck",
+        "Hint": "On a hit the weapon moves into the target's inventory and is shown stuck in its token. Off: hits land on the ground too."
+      },
+      "missRadius": {
+        "Name": "Miss scatter (ft)",
+        "Hint": "How far from the target a missed weapon may land."
+      },
+      "fumbleMin": {
+        "Name": "Fumble: minimum distance (ft)",
+        "Hint": "On a natural 1 the weapon lands at least this far from the target."
+      },
+      "fumbleMax": {
+        "Name": "Fumble: maximum distance (ft)",
+        "Hint": "On a natural 1 the weapon lands at most this far from the target."
+      },
+      "groundSize": {
+        "Name": "Size on the ground",
+        "Hint": "Size of a weapon lying on the ground, in grid squares."
+      },
+      "stuckIconSize": {
+        "Name": "Size of stuck weapons",
+        "Hint": "Size of the weapon icon on a hit token, in grid squares."
+      },
+      "pickupRange": {
+        "Name": "Pick up: range (ft)",
+        "Hint": "How close a player's token must be to pick a weapon up by double-click."
+      },
+      "pullRange": {
+        "Name": "Pull out: range (ft)",
+        "Hint": "How close a player's token must be to the target to pull out a stuck weapon."
+      },
+      "pullAutoDamage": {
+        "Name": "Pull out: apply damage automatically",
+        "Hint": "If the pull-out attack hits, its damage is applied to the target right away."
+      },
+      "pullStaysOnMiss": {
+        "Name": "Pull out: stays stuck on a miss",
+        "Hint": "If the pull-out attack misses, the weapon stays stuck. Off: it still comes out, just without damage."
+      },
+      "animate": {
+        "Name": "Show throw animation",
+        "Hint": "Applies to this client only."
+      },
+      "flightSpeed": {
+        "Name": "Flight speed",
+        "Hint": "Grid squares per second."
+      },
+      "iconAngle": {
+        "Name": "Weapon image orientation (°)",
+        "Hint": "Which way the point faces in weapon images. 45 = up and to the right (usual for dnd5e icons)."
+      },
+      "defaultStyle": {
+        "Name": "Default flight style",
+        "Hint": "For weapons not in any keyword list."
+      },
+      "straightKeywords": {
+        "Name": "Keywords: straight flight",
+        "Hint": "Comma separated. These fly point first (spears etc.)."
+      },
+      "spinKeywords": {
+        "Name": "Keywords: spinning",
+        "Hint": "Comma separated. These spin in flight (axes, hammers …)."
+      },
+      "fastSpinKeywords": {
+        "Name": "Keywords: fast spinning",
+        "Hint": "Comma separated. These spin quickly (daggers, knives …)."
+      },
+      "chatMessages": {
+        "Name": "Chat messages",
+        "Hint": "Short chat notes when a weapon sticks, fumbles, is picked up or pulled out."
+      }
+    }
+  }
+}

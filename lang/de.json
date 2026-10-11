@@ -1,0 +1,111 @@
+{
+  "ascandir-persistent-thrown-weapons": {
+    "ImprovisedThrow": "Geworfen (improvisiert)",
+    "ChatAlias": "Wurfwaffen",
+    "Style": {
+      "spin": "Rotierend",
+      "fastSpin": "Schnell rotierend",
+      "straight": "Gerade (Spitze voraus)"
+    },
+    "Warn": {
+      "NoGM": "Kein Spielleiter online – geworfene Waffen können gerade nicht liegen bleiben.",
+      "SelectToken": "Wähle zuerst deinen Token aus.",
+      "TooFar": "Zu weit weg – du musst höchstens {range} ft entfernt sein.",
+      "NoPermission": "Dafür fehlen dir die Rechte."
+    },
+    "Chat": {
+      "Stuck": "<strong>{item}</strong> bleibt in <strong>{target}</strong> stecken!",
+      "Fumble": "Patzer! <strong>{actor}</strong> schleudert <strong>{item}</strong> weit daneben.",
+      "PickedUp": "<strong>{actor}</strong> hebt <strong>{item}</strong> auf.",
+      "Pulled": "<strong>{actor}</strong> reißt <strong>{item}</strong> aus <strong>{target}</strong> heraus …",
+      "PulledSelf": "<strong>{actor}</strong> zieht sich <strong>{item}</strong> heraus.",
+      "StillStuck": "{item} sitzt zu fest und bleibt stecken."
+    },
+    "Settings": {
+      "improvisedThrow": {
+        "Name": "Alle Nahkampfwaffen werfbar",
+        "Hint": "Waffen ohne die Eigenschaft „Wurfwaffe“ bekommen im Angriffsdialog den Modus „Geworfen (improvisiert)“. Erfordert Neuladen."
+      },
+      "autoDetectRange": {
+        "Name": "Wurf an Entfernung erkennen",
+        "Hint": "Ein Nahkampfangriff auf ein Ziel außerhalb der Reichweite zählt automatisch als Wurf."
+      },
+      "excludeNames": {
+        "Name": "Ausgeschlossene Namen",
+        "Hint": "Kommagetrennt. Waffen, deren Name einen dieser Begriffe enthält, bleiben nie liegen (Munition wird immer ignoriert)."
+      },
+      "stickOnHit": {
+        "Name": "Treffer bleiben stecken",
+        "Hint": "Bei einem Treffer wandert die Waffe ins Inventar des Ziels und steckt sichtbar im Token. Aus: Treffer landen ebenfalls am Boden."
+      },
+      "missRadius": {
+        "Name": "Fehlwurf-Streuung (ft)",
+        "Hint": "Wie weit eine verfehlende Waffe höchstens neben dem Ziel landet."
+      },
+      "fumbleMin": {
+        "Name": "Patzer: Mindestabstand (ft)",
+        "Hint": "Bei einer natürlichen 1 fliegt die Waffe mindestens so weit am Ziel vorbei."
+      },
+      "fumbleMax": {
+        "Name": "Patzer: Höchstabstand (ft)",
+        "Hint": "Bei einer natürlichen 1 fliegt die Waffe höchstens so weit am Ziel vorbei."
+      },
+      "groundSize": {
+        "Name": "Größe am Boden",
+        "Hint": "Größe der liegenden Waffe in Feldern."
+      },
+      "stuckIconSize": {
+        "Name": "Größe steckender Waffen",
+        "Hint": "Größe des Waffen-Symbols am getroffenen Token in Feldern."
+      },
+      "pickupRange": {
+        "Name": "Aufheben: Reichweite (ft)",
+        "Hint": "Wie nah ein Spieler-Token an der Waffe sein muss, um sie per Doppelklick aufzuheben."
+      },
+      "pullRange": {
+        "Name": "Herausziehen: Reichweite (ft)",
+        "Hint": "Wie nah ein Spieler-Token am Ziel sein muss, um eine steckende Waffe herauszuziehen."
+      },
+      "pullAutoDamage": {
+        "Name": "Herausziehen: Schaden automatisch anwenden",
+        "Hint": "Trifft der Herausziehen-Angriff, wird der Schaden direkt beim Ziel abgezogen."
+      },
+      "pullStaysOnMiss": {
+        "Name": "Herausziehen: bei Fehlschlag stecken bleiben",
+        "Hint": "Verfehlt der Herausziehen-Angriff, bleibt die Waffe stecken. Aus: Die Waffe kommt trotzdem heraus, nur ohne Schaden."
+      },
+      "animate": {
+        "Name": "Wurf-Animation anzeigen",
+        "Hint": "Gilt nur für diesen Client."
+      },
+      "flightSpeed": {
+        "Name": "Fluggeschwindigkeit",
+        "Hint": "Felder pro Sekunde."
+      },
+      "iconAngle": {
+        "Name": "Ausrichtung der Waffen-Bilder (°)",
+        "Hint": "In welche Richtung die Spitze in den Waffenbildern zeigt. 45 = nach oben rechts (üblich bei dnd5e-Icons)."
+      },
+      "defaultStyle": {
+        "Name": "Standard-Flugstil",
+        "Hint": "Für Waffen, die in keiner der Stichwortlisten stehen."
+      },
+      "straightKeywords": {
+        "Name": "Stichworte: gerade Flugbahn",
+        "Hint": "Kommagetrennt. Diese Waffen fliegen mit der Spitze voraus (Speere usw.)."
+      },
+      "spinKeywords": {
+        "Name": "Stichworte: rotierend",
+        "Hint": "Kommagetrennt. Diese Waffen drehen sich im Flug (Äxte, Hämmer …)."
+      },
+      "fastSpinKeywords": {
+        "Name": "Stichworte: schnell rotierend",
+        "Hint": "Kommagetrennt. Diese Waffen drehen sich schnell (Dolche, Messer …)."
+      },
+      "chatMessages": {
+        "Name": "Chat-Nachrichten",
+        "Hint": "Kurze Chat-Meldungen bei Stecken, Patzer, Aufheben und Herausziehen."
+      }
+    }
+  }
+}
