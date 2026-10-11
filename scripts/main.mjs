@@ -1,7 +1,7 @@
 import { MODULE_ID, L, setting, registerSettings, isEligibleWeapon, rememberActingToken } from "./config.mjs";
 import { registerSocket } from "./net.mjs";
 import { registerOverlayHooks } from "./overlay.mjs";
-import { onRollAttack, onDeleteItem, registerInput } from "./actions.mjs";
+import { onRollAttack, onPostRollAttack, onDeleteItem, registerInput } from "./actions.mjs";
 
 Hooks.once("init", () => {
   registerSettings();
@@ -50,6 +50,7 @@ Hooks.once("ready", () => {
   Hooks.on("dnd5e.rollAttack", (rolls, data) => {
     onRollAttack(rolls, data).catch(err => console.error(`${MODULE_ID} |`, err));
   });
+  Hooks.on("dnd5e.postRollAttack", (rolls, data) => onPostRollAttack(rolls, data));
   Hooks.on("deleteItem", item => onDeleteItem(item));
   Hooks.on("controlToken", (token, controlled) => rememberActingToken(token, controlled));
   console.log(`${MODULE_ID} | ready`);

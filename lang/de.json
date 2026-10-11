@@ -105,6 +105,10 @@
       "chatMessages": {
         "Name": "Chat-Nachrichten",
         "Hint": "Kurze Chat-Meldungen bei Stecken, Patzer, Aufheben und Herausziehen."
+      },
+      "removeEmpty": {
+        "Name": "Geworfene Waffen aus dem Inventar entfernen",
+        "Hint": "Ist die letzte Waffe geworfen (Anzahl 0), verschwindet sie aus dem Inventar. Beim Aufheben oder Herausziehen kommt sie vollständig zurück. Aus: Sie bleibt mit Anzahl 0 stehen (dnd5e-Standard)."
       }
     },
     "Dialog": {

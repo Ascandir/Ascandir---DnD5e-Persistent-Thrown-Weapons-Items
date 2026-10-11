@@ -105,6 +105,10 @@
       "chatMessages": {
         "Name": "Chat messages",
         "Hint": "Short chat notes when a weapon sticks, fumbles, is picked up or pulled out."
+      },
+      "removeEmpty": {
+        "Name": "Remove thrown weapons from inventory",
+        "Hint": "When the last one is thrown (quantity 0), it disappears from the inventory. Picking it up or pulling it out brings it back completely. Off: it stays with quantity 0 (dnd5e default)."
       }
     },
     "Dialog": {

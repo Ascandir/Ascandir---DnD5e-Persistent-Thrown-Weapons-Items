@@ -36,6 +36,7 @@ export function registerSettings() {
 
   // --- Treffer / Fehlwurf ---
   reg("stickOnHit", Boolean, true);
+  reg("removeEmpty", Boolean, true);
   reg("missRadius", Number, 5, { range: { min: 0, max: 30, step: 5 } });
   reg("fumbleMin", Number, 15, { range: { min: 5, max: 60, step: 5 } });
   reg("fumbleMax", Number, 30, { range: { min: 5, max: 90, step: 5 } });

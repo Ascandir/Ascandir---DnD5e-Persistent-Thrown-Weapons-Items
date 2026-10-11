@@ -9,6 +9,22 @@ import { stuckIconAt, getStuckEntries } from "./overlay.mjs";
 /** Item ids currently being used for a "pull out" attack (ignored by the throw hook). */
 const pullingItems = new Set();
 
+/** Items just thrown: removed from the inventory once dnd5e has brought their quantity to 0. */
+const thrownItems = new Set();
+
+async function removeIfEmpty(item) {
+  if ( !setting("removeEmpty") || !item?.isOwner || !item.actor?.items.has(item.id) ) return;
+  if ( (item.system.quantity ?? 1) <= 0 ) await item.delete();
+}
+
+/** dnd5e.postRollAttack: dnd5e has now reduced the quantity of the thrown weapon. */
+export function onPostRollAttack(rolls, { subject } = {}) {
+  const item = subject?.item;
+  if ( !item || !thrownItems.has(item.uuid) ) return;
+  thrownItems.delete(item.uuid);
+  removeIfEmpty(item).catch(err => console.error(`${MODULE_ID} |`, err));
+}
+
 /* ============================================ */
 /*  Throwing                                    */
 /* ============================================ */
@@ -44,6 +60,7 @@ export async function onRollAttack(rolls, { subject } = {}) {
   if ( quantity <= 0 ) return;
   const itemData = singleItemData(item);
   const returning = !!item.system.properties?.has("ret");
+  if ( !returning && !improvised && game.users.activeGM ) thrownItems.add(item.uuid);
 
   // Hit, miss or fumble? (players often can't see a foreign NPC's AC, so ask the GM)
   const hit = await isHit(roll, target);
@@ -72,6 +89,7 @@ export async function onRollAttack(rolls, { subject } = {}) {
   // Improvised throw detected by range: dnd5e did not reduce the quantity, so we do it.
   if ( improvised && item.isOwner && actor.items.has(item.id) ) {
     await item.update({ "system.quantity": Math.max(0, quantity - 1) });
+    await removeIfEmpty(item);
   }
 
   const rotationDeg = Math.round(((plan.finalRotation * 180) / Math.PI) % 360);
