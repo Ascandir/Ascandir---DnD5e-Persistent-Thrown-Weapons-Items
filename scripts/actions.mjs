@@ -495,9 +495,22 @@ async function pullOut(targetToken, itemId) {
 
   const hit = await isHit(roll, targetToken);
 
-  if ( hit ) {
+  if ( hit && !setting("pullAutoDamage") ) {
+    // No automation: only a chat card with a damage button, rolled when someone clicks it
+    await ChatMessage.create({
+      speaker: ChatMessage.getSpeaker({ actor: remover.actor, token: remover.document }),
+      content: `<div class="aptw-damage-card">
+        <p>${L("Chat.PullHit", { actor: remover.name, item: weapon.name, target: targetToken.name })}</p>
+        <button type="button" class="aptw-roll-damage"><i class="fa-solid fa-burst"></i> ${L("Chat.RollDamage")}</button>
+      </div>`,
+      flags: { [MODULE_ID]: { damage: {
+        actorUuid: remover.actor.uuid, itemId: weapon.id, activityId: activity.id,
+        isCritical: !!roll.isCritical, attackMode: attackMode ?? null
+      } } }
+    });
+  } else if ( hit ) {
     const dmg = await activity.rollDamage({ isCritical: roll.isCritical, attackMode }, { configure: false });
-    if ( dmg?.length && setting("pullAutoDamage") ) {
+    if ( dmg?.length ) {
       await requestGM("applyDamage", {
         sceneId, targetTokenId: targetToken.id,
         damages: dmg.map(r => ({ value: r.total, type: r.options?.type, properties: [...(r.options?.properties ?? [])] }))
@@ -656,3 +669,30 @@ export function registerInput() {
 }
 
 export { getStuckEntries };
+
+/* ============================================ */
+/*  Damage button on pull-out cards              */
+/* ============================================ */
+
+export function onRenderChatMessage(message, html) {
+  const data = message.getFlag(MODULE_ID, "damage");
+  if ( !data ) return;
+  const root = html instanceof HTMLElement ? html : html?.[0];
+  const button = root?.querySelector?.(".aptw-roll-damage");
+  if ( !button ) return;
+  button.addEventListener("click", async event => {
+    event.preventDefault();
+    const actor = await fromUuid(data.actorUuid);
+    if ( !actor?.isOwner ) return ui.notifications.warn(L("Warn.NoPermission"));
+    const item = actor.items.get(data.itemId);
+    const activity = item?.system.activities?.get(data.activityId) ?? item?.system.activities?.getByType?.("attack")?.[0];
+    if ( !activity ) return ui.notifications.warn(L("Warn.ItemGone"));
+    button.disabled = true;
+    try {
+      await activity.rollDamage({ event, isCritical: data.isCritical, attackMode: data.attackMode ?? undefined },
+        data.isCritical ? { options: { defaultButton: "critical" } } : {});
+    } finally {
+      button.disabled = false;
+    }
+  });
+}

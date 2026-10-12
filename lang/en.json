@@ -11,7 +11,8 @@
       "NoGM": "No GM online – thrown weapons can't be left behind right now.",
       "SelectToken": "Select your token first.",
       "TooFar": "Too far away – you must be within {range} ft.",
-      "NoPermission": "You don't have permission to do that."
+      "NoPermission": "You don't have permission to do that.",
+      "ItemGone": "The weapon is no longer in the inventory."
     },
     "Chat": {
       "Stuck": "<strong>{item}</strong> gets stuck in <strong>{target}</strong>!",
@@ -19,7 +20,9 @@
       "PickedUp": "<strong>{actor}</strong> picks up <strong>{item}</strong>.",
       "Pulled": "<strong>{actor}</strong> rips <strong>{item}</strong> out of <strong>{target}</strong> …",
       "PulledSelf": "<strong>{actor}</strong> pulls out <strong>{item}</strong>.",
-      "StillStuck": "{item} is stuck fast and stays in."
+      "StillStuck": "{item} is stuck fast and stays in.",
+      "PullHit": "<strong>{actor}</strong> hits while pulling out <strong>{item}</strong> – <strong>{target}</strong> takes damage.",
+      "RollDamage": "Roll damage"
     },
     "Settings": {
       "improvisedThrow": {
@@ -68,7 +71,7 @@
       },
       "pullAutoDamage": {
         "Name": "Pull out: apply damage automatically",
-        "Hint": "On: if the pull-out attack hits, damage is subtracted from the target right away. Off: damage only appears as a damage chat card and the GM applies it from there (or not)."
+        "Hint": "On: if the pull-out attack hits, damage is rolled and applied right away. Off: only a chat card with 'Roll damage' appears. Damage is rolled on click and applied by hand from the damage card."
       },
       "pullStaysOnMiss": {
         "Name": "Pull out: stays stuck on a miss",

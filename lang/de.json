@@ -11,7 +11,8 @@
       "NoGM": "Kein Spielleiter online – geworfene Waffen können gerade nicht liegen bleiben.",
       "SelectToken": "Wähle zuerst deinen Token aus.",
       "TooFar": "Zu weit weg – du musst höchstens {range} ft entfernt sein.",
-      "NoPermission": "Dafür fehlen dir die Rechte."
+      "NoPermission": "Dafür fehlen dir die Rechte.",
+      "ItemGone": "Die Waffe ist nicht mehr im Inventar."
     },
     "Chat": {
       "Stuck": "<strong>{item}</strong> bleibt in <strong>{target}</strong> stecken!",
@@ -19,7 +20,9 @@
       "PickedUp": "<strong>{actor}</strong> hebt <strong>{item}</strong> auf.",
       "Pulled": "<strong>{actor}</strong> reißt <strong>{item}</strong> aus <strong>{target}</strong> heraus …",
       "PulledSelf": "<strong>{actor}</strong> zieht sich <strong>{item}</strong> heraus.",
-      "StillStuck": "{item} sitzt zu fest und bleibt stecken."
+      "StillStuck": "{item} sitzt zu fest und bleibt stecken.",
+      "PullHit": "<strong>{actor}</strong> trifft beim Herausziehen von <strong>{item}</strong> – <strong>{target}</strong> nimmt Schaden.",
+      "RollDamage": "Schaden würfeln"
     },
     "Settings": {
       "improvisedThrow": {
@@ -68,7 +71,7 @@
       },
       "pullAutoDamage": {
         "Name": "Herausziehen: Schaden automatisch abziehen",
-        "Hint": "An: Trifft der Herausziehen-Angriff, wird der Schaden sofort beim Ziel abgezogen. Aus: Der Schaden erscheint nur als Schadens-Chatkarte, und du als SL wendest ihn dort selbst an (oder lässt es)."
+        "Hint": "An: Trifft der Herausziehen-Angriff, wird Schaden gewürfelt und sofort abgezogen. Aus: Es erscheint nur eine Chatkarte mit „Schaden würfeln“. Der Schaden wird erst beim Klick gewürfelt und auf der Schadenskarte von Hand angewendet."
       },
       "pullStaysOnMiss": {
         "Name": "Herausziehen: bei Fehlschlag stecken bleiben",
