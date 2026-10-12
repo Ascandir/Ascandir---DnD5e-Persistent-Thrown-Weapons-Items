@@ -39,7 +39,29 @@ async function consumeThrown(actor, itemId, quantityBefore) {
     await live.update({ "system.quantity": qty });
   }
   console.log(`${MODULE_ID} | ${live.name}: ${quantityBefore} → ${qty}`);
-  if ( (qty <= 0) && setting("removeEmpty") && actor.items.has(itemId) ) await live.delete();
+  if ( (qty <= 0) && setting("removeEmpty") && actor.items.has(itemId) ) {
+    await storeItemSnapshot(live);
+    await live.delete();
+  }
+}
+
+/**
+ * Keep the chat cards of this item working after it's deleted (e.g. the Damage button):
+ * dnd5e falls back to an item snapshot stored in the message flag "dnd5e.item.data".
+ */
+async function storeItemSnapshot(item) {
+  const data = item.toObject();
+  data.system.quantity = 1;
+  const recent = game.messages.contents.slice(-30);
+  for ( const msg of recent ) {
+    if ( !msg.isOwner ) continue;
+    const uuid = msg.system?.item?.uuid ?? msg.getFlag("dnd5e", "item.uuid");
+    const id = msg.system?.item?.id ?? msg.getFlag("dnd5e", "item.id");
+    if ( (uuid !== item.uuid) && (id !== item.id) ) continue;
+    if ( msg.getFlag("dnd5e", "item.data") ) continue;
+    try { await msg.setFlag("dnd5e", "item.data", data); }
+    catch(err) { console.warn(`${MODULE_ID} | snapshot`, err); }
+  }
 }
 
 /* ============================================ */
