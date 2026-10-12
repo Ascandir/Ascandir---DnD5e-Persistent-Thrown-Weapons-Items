@@ -9,20 +9,37 @@ import { stuckIconAt, getStuckEntries } from "./overlay.mjs";
 /** Item ids currently being used for a "pull out" attack (ignored by the throw hook). */
 const pullingItems = new Set();
 
-/** Items just thrown: removed from the inventory once dnd5e has brought their quantity to 0. */
-const thrownItems = new Set();
+/** Signals from dnd5e.postRollAttack (dnd5e has finished its own quantity update), keyed by item uuid. */
+const postSignals = new Map();
 
-async function removeIfEmpty(item) {
-  if ( !setting("removeEmpty") || !item?.isOwner || !item.actor?.items.has(item.id) ) return;
-  if ( (item.system.quantity ?? 1) <= 0 ) await item.delete();
+function waitForPost(uuid, timeout = 4000) {
+  return new Promise(resolve => {
+    const done = () => { postSignals.delete(uuid); resolve(); };
+    postSignals.set(uuid, done);
+    setTimeout(done, timeout);
+  });
 }
 
-/** dnd5e.postRollAttack: dnd5e has now reduced the quantity of the thrown weapon. */
 export function onPostRollAttack(rolls, { subject } = {}) {
-  const item = subject?.item;
-  if ( !item || !thrownItems.has(item.uuid) ) return;
-  thrownItems.delete(item.uuid);
-  removeIfEmpty(item).catch(err => console.error(`${MODULE_ID} |`, err));
+  const uuid = subject?.item?.uuid;
+  if ( uuid ) postSignals.get(uuid)?.();
+}
+
+/**
+ * Make sure exactly one thrown weapon left the thrower's inventory:
+ * reduce the quantity ourselves if dnd5e didn't (e.g. improvised throws or other attack paths),
+ * then remove the item once it's empty.
+ */
+async function consumeThrown(actor, itemId, quantityBefore) {
+  const live = actor.items.get(itemId);
+  if ( !live?.isOwner ) return;
+  let qty = live.system.quantity ?? 0;
+  if ( qty >= quantityBefore ) {
+    qty = Math.max(0, quantityBefore - 1);
+    await live.update({ "system.quantity": qty });
+  }
+  console.log(`${MODULE_ID} | ${live.name}: ${quantityBefore} → ${qty}`);
+  if ( (qty <= 0) && setting("removeEmpty") && actor.items.has(itemId) ) await live.delete();
 }
 
 /* ============================================ */
@@ -48,10 +65,9 @@ export async function onRollAttack(rolls, { subject } = {}) {
   // Was it a throw?
   const mode = roll.options?.attackMode ?? "";
   let thrown = mode.startsWith("thrown");
-  let improvised = false;
   if ( !thrown && setting("autoDetectRange") && (item.system.attackType === "melee") ) {
     const reach = item.system.range?.reach || canvas.dimensions.distance;
-    if ( tokenGapDistance(attacker, target) > reach ) { thrown = true; improvised = true; }
+    if ( tokenGapDistance(attacker, target) > reach ) thrown = true;
   }
   if ( !thrown ) return;
 
@@ -60,7 +76,7 @@ export async function onRollAttack(rolls, { subject } = {}) {
   if ( quantity <= 0 ) return;
   const itemData = singleItemData(item);
   const returning = !!item.system.properties?.has("ret");
-  if ( !returning && !improvised && game.users.activeGM ) thrownItems.add(item.uuid);
+  const posted = waitForPost(item.uuid);
 
   // Hit, miss or fumble? (players often can't see a foreign NPC's AC, so ask the GM)
   const hit = await isHit(roll, target);
@@ -86,11 +102,9 @@ export async function onRollAttack(rolls, { subject } = {}) {
   if ( returning ) return;
   if ( !game.users.activeGM ) return ui.notifications.warn(L("Warn.NoGM"));
 
-  // Improvised throw detected by range: dnd5e did not reduce the quantity, so we do it.
-  if ( improvised && item.isOwner && actor.items.has(item.id) ) {
-    await item.update({ "system.quantity": Math.max(0, quantity - 1) });
-    await removeIfEmpty(item);
-  }
+  // The weapon leaves the thrower (after dnd5e's own update, so it's never reduced twice)
+  await posted;
+  await consumeThrown(actor, item.id, quantity).catch(err => console.error(`${MODULE_ID} |`, err));
 
   const rotationDeg = Math.round(((plan.finalRotation * 180) / Math.PI) % 360);
   await requestGM("resolveThrow", {
