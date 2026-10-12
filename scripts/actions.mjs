@@ -62,14 +62,10 @@ export async function onRollAttack(rolls, { subject } = {}) {
   const attacker = tokenForActor(actor);
   if ( !target || !attacker || (target === attacker) ) return;
 
-  // Was it a throw?
+  // Only a real throw (attack mode "Thrown") flies. Out-of-reach attacks are switched to
+  // "Thrown" before rolling (see onPreRollAttack), so the dice and chat card always match.
   const mode = roll.options?.attackMode ?? "";
-  let thrown = mode.startsWith("thrown");
-  if ( !thrown && setting("autoDetectRange") && (item.system.attackType === "melee") ) {
-    const reach = item.system.range?.reach || canvas.dimensions.distance;
-    if ( tokenGapDistance(attacker, target) > reach ) thrown = true;
-  }
-  if ( !thrown ) return;
+  if ( !mode.startsWith("thrown") ) return;
 
   // Snapshot before dnd5e reduces the quantity
   const quantity = item.system.quantity ?? 1;
@@ -114,6 +110,37 @@ export async function onRollAttack(rolls, { subject } = {}) {
     itemData, result, to, stuckAngle,
     rotationDeg: style === "straight" ? rotationDeg : Math.round(Math.random() * 360)
   }).catch(err => console.error(`${MODULE_ID} |`, err));
+}
+
+/**
+ * dnd5e.preRollAttackV2: if a melee weapon attacks a target out of reach, preselect the "Thrown" mode
+ * so the attack is rolled as a throw (ranged attack) right away. The player can still change it in the dialog.
+ */
+export function onPreRollAttack(config) {
+  try {
+    if ( !setting("autoDetectRange") || !canvas?.ready ) return;
+    const item = config?.subject?.item;
+    const actor = config?.subject?.actor ?? item?.actor;
+    if ( !item || !actor || pullingItems.has(item.id) || !isEligibleWeapon(item) ) return;
+    if ( item.system.attackType !== "melee" ) return;
+    if ( String(config.attackMode ?? "").startsWith("thrown") ) return;
+    const modes = item.system.attackModes ?? [];
+    if ( !modes.some(m => m.value === "thrown") ) return;
+    const targets = [...game.user.targets];
+    if ( targets.length !== 1 ) return;
+    const attacker = tokenForActor(actor);
+    if ( !attacker || (attacker === targets[0]) ) return;
+    const reach = item.system.range?.reach || canvas.dimensions.distance;
+    if ( tokenGapDistance(attacker, targets[0]) <= reach ) return;
+    config.attackMode = "thrown";
+    for ( const r of config.rolls ?? [] ) {
+      r.options ??= {};
+      r.options.attackMode = "thrown";
+    }
+    ui.notifications.info(L("Info.AutoThrow", { item: item.name }));
+  } catch(err) {
+    console.error(`${MODULE_ID} |`, err);
+  }
 }
 
 /** Armor class of a target token; asks the GM if this client can't see it. */

@@ -9,7 +9,7 @@ Geworfene Waffen verschwinden nicht mehr einfach:
 - **Herausziehen** – Doppelklick auf das steckende Symbol (mit eigenem Token in Reichweite). Das zählt als Angriff mit der Waffe: Angriffswurf gegen die RK, bei Treffer Schadenswurf. Ob der Schaden automatisch abgezogen wird oder nur als Chatkarte erscheint, stellt der SL ganz oben in den Moduleinstellungen ein. Die Waffe landet im Inventar des Herausziehenden.
 - **Fehlwurf** – die Waffe landet als kleines Token in der Nähe des Ziels auf dem Boden. **Patzer (natürliche 1)** – sie fliegt deutlich weiter weg.
 - **Aufheben** – Doppelklick auf die liegende Waffe (eigenen Token in Reichweite ausgewählt). Hatte der Charakter die Waffe vorher, wird der Stapel einfach wieder aufgefüllt.
-- **Alle Waffen werfbar** – Nahkampfwaffen ohne die Eigenschaft „Wurfwaffe“ bekommen im Angriffsdialog den Modus „Geworfen (improvisiert)“. Außerdem zählt ein Nahkampfangriff auf ein Ziel außerhalb der Reichweite automatisch als Wurf.
+- **Alle Waffen werfbar** – Nahkampfwaffen ohne die Eigenschaft „Wurfwaffe“ bekommen im Angriffsdialog den Modus „Geworfen (improvisiert)“. Greifst du ein Ziel außerhalb deiner Reichweite an, ist im Angriffsdialog automatisch „Geworfen“ vorausgewählt – Wurf und Chatkarte passen dann zusammen.
 - **Ausgenommen**: Munition und Waffen mit Munition (Bögen, Armbrüste, Schleudern) sowie Darts/Wurfpfeile (Liste in den Einstellungen anpassbar). Waffen mit der Eigenschaft „Zurückkehrend“ fliegen hin und zurück und bleiben nicht liegen.
 
 ## Zusammenspiel mit anderen Modulen

@@ -28,7 +28,7 @@
       },
       "autoDetectRange": {
         "Name": "Detect throws by distance",
-        "Hint": "A melee attack against a target out of reach counts as a throw."
+        "Hint": "Attacking a target out of reach with a melee weapon preselects 'Thrown' in the attack dialog. It is then rolled as a throw (ranged) and the chat card matches."
       },
       "excludeNames": {
         "Name": "Excluded names",
@@ -116,6 +116,9 @@
       "Other": "Something else (e.g. steal)",
       "Content": "Something is stuck in <strong>{target}</strong>. What do you want to do?",
       "OtherHint": "Double-click the token again now for the normal action."
+    },
+    "Info": {
+      "AutoThrow": "Target out of reach – {item} is thrown."
     }
   }
 }

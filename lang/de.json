@@ -28,7 +28,7 @@
       },
       "autoDetectRange": {
         "Name": "Wurf an Entfernung erkennen",
-        "Hint": "Ein Nahkampfangriff auf ein Ziel außerhalb der Reichweite zählt automatisch als Wurf."
+        "Hint": "Greifst du mit einer Nahkampfwaffe ein Ziel außerhalb deiner Reichweite an, wird im Angriffsdialog automatisch „Geworfen“ vorausgewählt. Gewürfelt wird dann als Wurf (Fernkampf), und die Chatkarte passt dazu."
       },
       "excludeNames": {
         "Name": "Ausgeschlossene Namen",
@@ -116,6 +116,9 @@
       "Other": "Andere Aktion (z. B. bestehlen)",
       "Content": "In <strong>{target}</strong> steckt etwas. Was willst du tun?",
       "OtherHint": "Doppelklicke den Token jetzt noch einmal für die normale Aktion."
+    },
+    "Info": {
+      "AutoThrow": "Ziel außer Reichweite – {item} wird geworfen."
     }
   }
 }
