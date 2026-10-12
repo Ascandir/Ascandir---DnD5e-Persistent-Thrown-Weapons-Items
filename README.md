@@ -1,4 +1,4 @@
-# Ascandir - Persistent Thrown Weapons/Items
+# Ascandir - DnD5e Persistent Thrown Weapons/Items
 
 Foundry VTT Modul für **dnd5e 6.x** (getestet gegen Foundry v14.368 / dnd5e 6.0.6).
 
@@ -34,4 +34,4 @@ https://github.com/Ascandir/Ascandir---Persistent-Thrown-Weapons-Items/releases/
 
 ## Einstellungen
 
-Alle Einstellungen findest du unter *Spieleinstellungen → Module konfigurieren → Ascandir - Persistent Thrown Weapons/Items* (Reichweiten, Streuung, Größen, Flugstile per Stichwort, Chat-Meldungen, Animation pro Client).
+Alle Einstellungen findest du unter *Spieleinstellungen → Module konfigurieren → Ascandir - DnD5e Persistent Thrown Weapons/Items* (Reichweiten, Streuung, Größen, Flugstile per Stichwort, Chat-Meldungen, Animation pro Client).
