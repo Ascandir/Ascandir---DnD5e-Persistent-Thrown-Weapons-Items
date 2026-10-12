@@ -266,10 +266,16 @@ gmHandlers.resolveThrow = async ({ sceneId, targetTokenId, attackerName, itemDat
   return { ground: true };
 };
 
-gmHandlers.pickup = async ({ sceneId, tokenId, actorUuid }, userId) => {
+gmHandlers.pickup = async ({ sceneId, tokenId, actorUuid, pickerTokenId }, userId) => {
   const tDoc = getSceneToken(sceneId, tokenId);
   const ground = tDoc?.getFlag(MODULE_ID, "ground");
   if ( !ground ) return { ok: false, reason: "gone" };
+  // Second range check on the GM's side (only possible when the GM looks at the same scene)
+  if ( (canvas.scene?.id === sceneId) && pickerTokenId ) {
+    const a = canvas.tokens.get(pickerTokenId);
+    const b = tDoc.object;
+    if ( a && b && (tokenGapDistance(a, b) > (setting("pickupRange") + 0.01)) ) return { ok: false, reason: "range" };
+  }
   const actor = await fromUuid(actorUuid);
   const user = game.users.get(userId);
   if ( !actor || !user || !actor.testUserPermission(user, "OWNER") ) return { ok: false, reason: "permission" };
@@ -364,16 +370,15 @@ export function onDeleteItem(item) {
 async function pickUp(groundToken) {
   const picker = getActingToken();
   if ( !picker ) return ui.notifications.warn(L("Warn.SelectToken"));
-  if ( !game.user.isGM ) {
-    const range = setting("pickupRange");
-    if ( tokenGapDistance(picker, groundToken) > (range + 0.01) ) {
-      return ui.notifications.warn(L("Warn.TooFar", { range }));
-    }
-  }
+  const range = setting("pickupRange");
+  const dist = tokenGapDistance(picker, groundToken);
+  console.log(`${MODULE_ID} | Aufheben: ${picker.name} → ${groundToken.name}: ${dist} ft (max ${range} ft)`);
+  if ( dist > (range + 0.01) ) return ui.notifications.warn(L("Warn.TooFar", { range }));
   const res = await requestGM("pickup", {
-    sceneId: canvas.scene.id, tokenId: groundToken.id, actorUuid: picker.actor.uuid
+    sceneId: canvas.scene.id, tokenId: groundToken.id, actorUuid: picker.actor.uuid, pickerTokenId: picker.id
   }).catch(err => { console.error(err); return null; });
   if ( res && !res.ok && (res.reason === "permission") ) ui.notifications.warn(L("Warn.NoPermission"));
+  if ( res && !res.ok && (res.reason === "range") ) ui.notifications.warn(L("Warn.TooFar", { range }));
 }
 
 /* ============================================ */
@@ -403,11 +408,9 @@ async function pullOut(targetToken, itemId) {
     return chatLocal(L("Chat.PulledSelf", { actor: remover.name, item: item.name }));
   }
 
-  if ( !game.user.isGM ) {
-    const range = setting("pullRange");
-    if ( tokenGapDistance(remover, targetToken) > (range + 0.01) ) {
-      return ui.notifications.warn(L("Warn.TooFar", { range }));
-    }
+  const range = setting("pullRange");
+  if ( tokenGapDistance(remover, targetToken) > (range + 0.01) ) {
+    return ui.notifications.warn(L("Warn.TooFar", { range }));
   }
 
   const taken = await requestGM("pullTake", {

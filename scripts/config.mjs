@@ -158,6 +158,7 @@ export function rememberActingToken(token, controlled) {
 export function getActingToken() {
   const controlled = canvas.tokens.controlled.find(t => t.actor && !isGroundToken(t) && t.actor.isOwner);
   if ( controlled ) return controlled;
+  if ( game.user.isGM ) return null; // the GM acts only with a selected token
   const last = lastActingTokenId ? canvas.tokens.get(lastActingTokenId) : null;
   if ( last?.actor?.isOwner ) return last;
   const own = game.user.character?.getActiveTokens?.(true)?.[0];
