@@ -1,6 +1,7 @@
 import { MODULE_ID, L, setting, registerSettings, isEligibleWeapon, rememberActingToken } from "./config.mjs";
 import { registerSocket } from "./net.mjs";
 import { registerOverlayHooks } from "./overlay.mjs";
+import { registerRecall } from "./recall.mjs";
 import { onRollAttack, onPreRollAttack, onPostRollAttack, onDeleteItem, registerInput, onRenderChatMessage } from "./actions.mjs";
 
 Hooks.once("init", () => {
@@ -42,6 +43,7 @@ function patchAttackModes() {
 Hooks.once("setup", () => {
   patchAttackModes();
   registerOverlayHooks();
+  registerRecall();
 });
 
 Hooks.on("renderChatMessageHTML", (message, html) => onRenderChatMessage(message, html));

@@ -94,7 +94,7 @@ export async function playThrow(data) {
 
   try {
     await leg(data.from, data.to, startRot, plan.finalRotation, plan.duration);
-    impactEffect(data.to, data.result);
+    if ( data.result !== "recall" ) impactEffect(data.to, data.result);
     if ( data.returning ) {
       await leg(data.to, data.from, plan.finalRotation, plan.finalRotation + (plan.finalRotation - startRot),
         plan.duration);

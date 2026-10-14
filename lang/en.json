@@ -22,7 +22,9 @@
       "PulledSelf": "<strong>{actor}</strong> pulls out <strong>{item}</strong>.",
       "StillStuck": "{item} is stuck fast and stays in.",
       "PullHit": "<strong>{actor}</strong> hits while pulling out <strong>{item}</strong> – <strong>{target}</strong> takes damage.",
-      "RollDamage": "Roll damage"
+      "RollDamage": "Roll damage",
+      "Recalled": "<strong>{actor}</strong> recalls <strong>{item}</strong> – the weapon flies back into their hand.",
+      "BonusAction": " <em>(bonus action)</em>"
     },
     "Settings": {
       "improvisedThrow": {
@@ -112,6 +114,14 @@
       "removeEmpty": {
         "Name": "Remove thrown weapons from inventory",
         "Hint": "When the last one is thrown (quantity 0), it disappears from the inventory. Picking it up or pulling it out brings it back completely. Off: it stays with quantity 0 (dnd5e default)."
+      },
+      "boundMode": {
+        "Name": "Bound weapons",
+        "Hint": "What happens to bound weapons (Weapon Bond, Pact of the Blade …) after a throw. To bind: right-click the weapon in the inventory → „Bind weapon“."
+      },
+      "recallBonusAction": {
+        "Name": "Recall: bonus action in chat",
+        "Hint": "The recall chat message mentions that it costs a bonus action (not enforced)."
       }
     },
     "Dialog": {
@@ -122,6 +132,19 @@
     },
     "Info": {
       "AutoThrow": "Target out of reach – {item} is thrown."
+    },
+    "BoundMode": {
+      "manual": "Recall by hand (bonus action)",
+      "auto": "Returns right after the throw"
+    },
+    "Bound": {
+      "Bind": "Bind weapon (recallable)",
+      "Unbind": "Remove bond",
+      "Bound": "{item} is now bound to {actor}.",
+      "Unbound": "{item} is no longer bound.",
+      "Recall": "Recall {item}",
+      "NotFound": "{item} could not be found – the bond was reset.",
+      "NoToken": "Select your token first."
     }
   }
 }

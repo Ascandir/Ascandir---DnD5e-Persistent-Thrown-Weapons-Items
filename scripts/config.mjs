@@ -43,6 +43,15 @@ export function registerSettings() {
   reg("groundSize", Number, 0.35, { range: { min: 0.15, max: 1, step: 0.05 } });
   reg("stuckIconSize", Number, 0.45, { range: { min: 0.2, max: 1, step: 0.05 } });
 
+  // --- Gebundene Waffen ---
+  reg("boundMode", String, "manual", {
+    choices: {
+      manual: `${MODULE_ID}.BoundMode.manual`,
+      auto: `${MODULE_ID}.BoundMode.auto`
+    }
+  });
+  reg("recallBonusAction", Boolean, true);
+
   // --- Aufheben / Herausziehen ---
   reg("pickupRange", Number, 5, { range: { min: 0, max: 30, step: 5 } });
   reg("pullRange", Number, 5, { range: { min: 0, max: 30, step: 5 } });
@@ -187,7 +196,14 @@ export function singleItemData(item) {
     sourceItemId: prev.sourceItemId ?? item.id,
     sourceActorUuid: prev.sourceActorUuid ?? item.actor?.uuid ?? null
   };
+  if ( prev.bound ) data.flags[MODULE_ID].bound = prev.bound;
   return data;
+}
+
+/** Bond data of a weapon (Item or item data): {key, ownerUuid} or null. */
+export function boundOf(itemOrData) {
+  const b = itemOrData?.flags?.[MODULE_ID]?.bound ?? itemOrData?._source?.flags?.[MODULE_ID]?.bound;
+  return b?.key ? b : null;
 }
 
 export function loadTex(src) {

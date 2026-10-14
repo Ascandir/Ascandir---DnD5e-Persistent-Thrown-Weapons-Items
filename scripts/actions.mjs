@@ -1,6 +1,6 @@
 import {
   MODULE_ID, L, setting, styleFor, isEligibleWeapon, ftToPx, tokenGapDistance, isGroundToken,
-  getActingToken, tokenForActor, singleItemData, randomBetween
+  getActingToken, tokenForActor, singleItemData, randomBetween, boundOf
 } from "./config.mjs";
 import { requestGM, broadcast, gmHandlers, broadcastHandlers } from "./net.mjs";
 import { playThrow, planFlight } from "./anim.mjs";
@@ -93,7 +93,8 @@ export async function onRollAttack(rolls, { subject } = {}) {
   const quantity = item.system.quantity ?? 1;
   if ( quantity <= 0 ) return;
   const itemData = singleItemData(item);
-  const returning = !!item.system.properties?.has("ret");
+  const bound = boundOf(item);
+  const returning = !!item.system.properties?.has("ret") || (!!bound && (setting("boundMode") === "auto"));
   const posted = waitForPost(item.uuid);
 
   // Hit, miss or fumble? (players often can't see a foreign NPC's AC, so ask the GM)
@@ -117,8 +118,22 @@ export async function onRollAttack(rolls, { subject } = {}) {
   const plan = planFlight(from, to, style);
   await broadcast("animate", anim);
 
-  if ( returning ) return;
+  if ( returning ) {
+    // A bound weapon set to "return at once": dnd5e still subtracted one (no Returning property) – undo that
+    if ( !item.system.properties?.has("ret") ) {
+      await posted;
+      const live = actor.items.get(item.id);
+      if ( live?.isOwner && ((live.system.quantity ?? 0) < quantity) ) await live.update({ "system.quantity": quantity });
+    }
+    return;
+  }
   if ( !game.users.activeGM ) return ui.notifications.warn(L("Warn.NoGM"));
+
+  // Remember where the bound weapon went, so its owner gets a "recall" button
+  if ( bound ) {
+    const owner = (bound.ownerUuid && (await fromUuid(bound.ownerUuid))) || actor;
+    if ( owner?.isOwner ) await owner.setFlag(MODULE_ID, `boundAway.${bound.key}`, { name: item.name, img: item.img });
+  }
 
   // The weapon leaves the thrower (after dnd5e's own update, so it's never reduced twice)
   await posted;
@@ -223,14 +238,19 @@ broadcastHandlers.animate = data => playThrow(data);
 /*  GM side                                     */
 /* ============================================ */
 
-async function chat(content) {
+export async function chat(content) {
   if ( !setting("chatMessages") ) return;
   await ChatMessage.create({ content: `<p>${content}</p>`, speaker: { alias: L("ChatAlias") } });
 }
 
 /** Give one piece of an item to an actor, stacking where it makes sense. */
-async function giveItem(actor, itemData) {
+export async function giveItem(actor, itemData) {
   const src = itemData.flags?.[MODULE_ID] ?? {};
+  // A bound weapon back in its owner's hands is no longer "away"
+  const bnd = boundOf(itemData);
+  if ( bnd && ((bnd.ownerUuid ?? src.sourceActorUuid) === actor.uuid) && actor.getFlag(MODULE_ID, `boundAway.${bnd.key}`) ) {
+    await actor.unsetFlag(MODULE_ID, `boundAway.${bnd.key}`);
+  }
   const stuckIds = new Set(Object.keys(actor.getFlag(MODULE_ID, "stuck") ?? {}));
   let existing = null;
   if ( src.sourceActorUuid === actor.uuid ) existing = actor.items.get(src.sourceItemId);
@@ -248,7 +268,7 @@ async function giveItem(actor, itemData) {
 }
 
 /** Remove one piece of an item from an actor. */
-async function takeOne(actor, item) {
+export async function takeOne(actor, item) {
   const qty = item.system.quantity ?? 1;
   if ( qty > 1 ) await item.update({ "system.quantity": qty - 1 });
   else await item.delete();

@@ -12,6 +12,12 @@ Geworfene Waffen verschwinden nicht mehr einfach:
 - **Alle Waffen werfbar** – Nahkampfwaffen ohne die Eigenschaft „Wurfwaffe“ bekommen im Angriffsdialog den Modus „Geworfen (improvisiert)“. Greifst du ein Ziel außerhalb deiner Reichweite an, ist im Angriffsdialog automatisch „Geworfen“ vorausgewählt – Wurf und Chatkarte passen dann zusammen.
 - **Ausgenommen**: Munition und Waffen mit Munition (Bögen, Armbrüste, Schleudern) sowie Darts/Wurfpfeile (Liste in den Einstellungen anpassbar). Waffen mit der Eigenschaft „Zurückkehrend“ fliegen hin und zurück und bleiben nicht liegen.
 
+## Gebundene Waffen (Waffenbund, Pakt der Klinge …)
+
+- **Binden:** Rechtsklick auf die Waffe im Inventar → „Waffe binden (zurückrufbar)“. Genauso wieder lösen.
+- **Zurückrufen:** Ist die gebundene Waffe weg (steckt im Gegner, liegt am Boden, hat jemand anderes aufgehoben oder gelootet), erscheint im Token-Menü (Rechtsklick auf den eigenen Token) ein Knopf mit dem Waffenbild. Klick → die Waffe fliegt animiert zurück in die Hand, ohne Angriff und ohne Schaden. Im Chat steht „(Bonusaktion)“ – erzwungen wird das nicht.
+- **Einstellung „Gebundene Waffen“:** „Von Hand zurückrufen“ (Standard) oder „Kehrt nach dem Wurf sofort zurück“ (wie eine zurückkehrende Waffe).
+
 ## Zusammenspiel mit anderen Modulen
 
 - **Corpse Loot:** Lebt der Gegner noch, fragt ein Doppelklick auf ihn, ob du eine steckende Waffe herausziehen oder etwas anderes tun willst (z. B. bestehlen). Bei „Andere Aktion“ einfach nochmal doppelklicken. Ist der Gegner tot, übernimmt Corpse Loot wie gewohnt – die Waffe liegt dann in seinem Inventar.

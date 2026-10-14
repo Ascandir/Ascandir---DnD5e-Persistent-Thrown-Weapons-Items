@@ -22,7 +22,9 @@
       "PulledSelf": "<strong>{actor}</strong> zieht sich <strong>{item}</strong> heraus.",
       "StillStuck": "{item} sitzt zu fest und bleibt stecken.",
       "PullHit": "<strong>{actor}</strong> trifft beim Herausziehen von <strong>{item}</strong> – <strong>{target}</strong> nimmt Schaden.",
-      "RollDamage": "Schaden würfeln"
+      "RollDamage": "Schaden würfeln",
+      "Recalled": "<strong>{actor}</strong> ruft <strong>{item}</strong> zurück – die Waffe fliegt in die Hand.",
+      "BonusAction": " <em>(Bonusaktion)</em>"
     },
     "Settings": {
       "improvisedThrow": {
@@ -112,6 +114,14 @@
       "removeEmpty": {
         "Name": "Geworfene Waffen aus dem Inventar entfernen",
         "Hint": "Ist die letzte Waffe geworfen (Anzahl 0), verschwindet sie aus dem Inventar. Beim Aufheben oder Herausziehen kommt sie vollständig zurück. Aus: Sie bleibt mit Anzahl 0 stehen (dnd5e-Standard)."
+      },
+      "boundMode": {
+        "Name": "Gebundene Waffen",
+        "Hint": "Was mit gebundenen Waffen (Waffenbund, Pakt der Klinge …) nach dem Wurf passiert. Binden: Rechtsklick auf die Waffe im Inventar → „Waffe binden“."
+      },
+      "recallBonusAction": {
+        "Name": "Zurückrufen: Bonusaktion im Chat",
+        "Hint": "Die Chat-Meldung beim Zurückrufen erwähnt, dass es eine Bonusaktion kostet (wird nicht erzwungen)."
       }
     },
     "Dialog": {
@@ -122,6 +132,19 @@
     },
     "Info": {
       "AutoThrow": "Ziel außer Reichweite – {item} wird geworfen."
+    },
+    "BoundMode": {
+      "manual": "Von Hand zurückrufen (Bonusaktion)",
+      "auto": "Kehrt nach dem Wurf sofort zurück"
+    },
+    "Bound": {
+      "Bind": "Waffe binden (zurückrufbar)",
+      "Unbind": "Bindung lösen",
+      "Bound": "{item} ist jetzt an {actor} gebunden.",
+      "Unbound": "Die Bindung von {item} ist gelöst.",
+      "Recall": "{item} zurückrufen",
+      "NotFound": "{item} wurde nicht gefunden – die Bindung wurde zurückgesetzt.",
+      "NoToken": "Wähle zuerst deinen Token aus."
     }
   }
 }
