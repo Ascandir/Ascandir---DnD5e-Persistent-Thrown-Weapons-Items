@@ -136,15 +136,50 @@ function cellRect(token) {
  * on a square grid by squares (neighbouring square, also diagonal = one grid step, e.g. 5 ft),
  * otherwise edge to edge plus one grid step.
  */
+/** Height difference between two tokens in scene units (e.g. ft). */
+function elevationGap(a, b) {
+  const ea = Number(a?.document?.elevation ?? 0) || 0;
+  const eb = Number(b?.document?.elevation ?? 0) || 0;
+  return Math.abs(ea - eb);
+}
+
+/**
+ * Combine horizontal and vertical steps (in grid squares) with the scene's diagonal rule,
+ * so flying / elevated tokens count the same way the Foundry ruler does.
+ */
+function combineSteps(h, v) {
+  if ( !v ) return h;
+  if ( !h ) return v;
+  const D = CONST.GRID_DIAGONALS ?? {};
+  const rule = canvas.grid.diagonals;
+  const lo = Math.min(h, v);
+  const hi = Math.max(h, v);
+  switch ( rule ) {
+    case D.ALTERNATING_1: return hi + Math.floor(lo / 2);      // 5-10-5
+    case D.ALTERNATING_2: return hi + Math.ceil(lo / 2);       // 10-5-10
+    case D.APPROXIMATE: return hi + (lo / 2);                  // 1.5
+    case D.EXACT: return Math.hypot(h, v);
+    case D.RECTILINEAR:
+    case D.ILLEGAL: return h + v;
+    default: return hi;                                         // equidistant (5-5-5, dnd5e default)
+  }
+}
+
+/**
+ * Distance between two tokens the way it's counted at the table, including elevation:
+ * on a square grid by squares (neighbouring square, also diagonal = one grid step, e.g. 5 ft),
+ * otherwise edge to edge plus one grid step. Height differences are added with the scene's diagonal rule.
+ */
 export function tokenGapDistance(a, b) {
   const d = canvas.dimensions.distance;
+  const vSteps = elevationGap(a, b) / d;
   if ( canvas.grid.isSquare ) {
     try {
       const A = cellRect(a);
       const B = cellRect(b);
       const dr = Math.max(0, B.r0 - A.r1, A.r0 - B.r1);
       const dc = Math.max(0, B.c0 - A.c1, A.c0 - B.c1);
-      return Math.max(dr, dc) * d;
+      return combineSteps(Math.max(dr, dc), vSteps) * d;
     } catch(err) {
       console.warn(`${MODULE_ID} |`, err);
     }
@@ -154,7 +189,9 @@ export function tokenGapDistance(a, b) {
   const dx = Math.max(0, bb.left - ab.right, ab.left - bb.right);
   const dy = Math.max(0, bb.top - ab.bottom, ab.top - bb.bottom);
   const gap = (Math.hypot(dx, dy) / canvas.dimensions.size) * d;
-  return gap + d;
+  const horiz = gap + d;
+  const vert = elevationGap(a, b);
+  return vert ? Math.hypot(horiz, vert) : horiz;
 }
 
 /** Is the given token one of our ground item tokens? */
