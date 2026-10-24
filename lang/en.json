@@ -122,6 +122,14 @@
       "recallBonusAction": {
         "Name": "Recall: bonus action in chat",
         "Hint": "The recall chat message mentions that it costs a bonus action (not enforced)."
+      },
+      "highlight": {
+        "Name": "Highlight weapons",
+        "Hint": "Stuck weapons and weapons lying on the ground get a colored outline so they're easy to spot. Applies to this client only."
+      },
+      "highlightColor": {
+        "Name": "Highlight color",
+        "Hint": "As a hex color, e.g. #ffffff for white or #ffd700 for gold. Applies to this client only."
       }
     },
     "Dialog": {

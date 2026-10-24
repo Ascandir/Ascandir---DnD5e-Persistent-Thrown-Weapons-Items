@@ -294,7 +294,7 @@ async function createGroundToken(scene, point, itemData, rotationDeg, droppedBy)
     height: size,
     texture: { src: itemData.img, scaleX: scale, scaleY: scale },
     rotation: ((rotationDeg % 360) + 360) % 360,
-    lockRotation: true,
+    lockRotation: false,
     displayName: modes.HOVER,
     displayBars: modes.NONE,
     disposition: CONST.TOKEN_DISPOSITIONS.NEUTRAL,

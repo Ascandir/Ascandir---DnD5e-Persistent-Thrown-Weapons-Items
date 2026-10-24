@@ -122,6 +122,14 @@
       "recallBonusAction": {
         "Name": "Zurückrufen: Bonusaktion im Chat",
         "Hint": "Die Chat-Meldung beim Zurückrufen erwähnt, dass es eine Bonusaktion kostet (wird nicht erzwungen)."
+      },
+      "highlight": {
+        "Name": "Waffen hervorheben",
+        "Hint": "Steckende und am Boden liegende Waffen bekommen einen farbigen Rand, damit man sie besser sieht. Gilt nur für diesen Client."
+      },
+      "highlightColor": {
+        "Name": "Farbe der Hervorhebung",
+        "Hint": "Als Hex-Farbe, z. B. #ffffff für Weiß oder #ffd700 für Gold. Gilt nur für diesen Client."
       }
     },
     "Dialog": {

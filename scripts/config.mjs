@@ -72,6 +72,10 @@ export function registerSettings() {
   reg("spinKeywords", String, "Axt, Axe, Beil, Hammer, Hatchet, Keule, Club, Sichel, Sickle, Streitkolben, Mace, Morgenstern, Morningstar, Flegel, Flail, Knüppel");
   reg("fastSpinKeywords", String, "Dolch, Dagger, Messer, Knife, Kurzschwert, Shortsword, Wurfstern, Shuriken");
 
+  // --- Hervorhebung ---
+  reg("highlight", Boolean, true, { scope: "client", onChange: () => globalThis.aptwRefreshHighlights?.() });
+  reg("highlightColor", String, "#ffffff", { scope: "client", onChange: () => globalThis.aptwRefreshHighlights?.() });
+
   // --- Chat ---
   reg("chatMessages", Boolean, true);
 }
