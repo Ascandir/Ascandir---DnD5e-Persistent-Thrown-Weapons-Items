@@ -51,7 +51,7 @@ export function registerSettings() {
     }
   });
   reg("recallBonusAction", Boolean, true);
-  reg("recallFeatureNames", String, "Warbond, Weapon Bond, Waffenbund, Waffenbindung, Pact of the Blade, Pakt der Klinge, Paktwaffe, Pact Weapon, Bound Weapon, Gebundene Waffe");
+  reg("recallFeatureNames", String, "Warbond, War Bond, Weapon Bond, Waffenbund, Kriegsbund, Waffenbindung, Pact of the Blade, Pakt der Klinge, Paktwaffe, Pact Weapon, Bound Weapon, Gebundene Waffe");
 
   // --- Aufheben / Herausziehen ---
   reg("pickupRange", Number, 5, { range: { min: 0, max: 30, step: 5 } });
@@ -238,14 +238,52 @@ export function singleItemData(item) {
     sourceItemId: prev.sourceItemId ?? item.id,
     sourceActorUuid: prev.sourceActorUuid ?? item.actor?.uuid ?? null
   };
-  if ( prev.bound ) data.flags[MODULE_ID].bound = prev.bound;
+  const bond = prev.bound ?? enchantBond(item);
+  if ( bond ) data.flags[MODULE_ID].bound = { key: bond.key, ownerUuid: bond.ownerUuid, via: bond.via ?? null };
   return data;
 }
 
 /** Bond data of a weapon (Item or item data): {key, ownerUuid} or null. */
 export function boundOf(itemOrData) {
   const b = itemOrData?.flags?.[MODULE_ID]?.bound ?? itemOrData?._source?.flags?.[MODULE_ID]?.bound;
-  return b?.key ? b : null;
+  if ( b?.key ) return b;
+  return enchantBond(itemOrData);
+}
+
+/** Does a name match the "recall features" list (Warbond, Pakt der Klinge, Pact Weapon …)? */
+export function isBondName(name) {
+  const n = String(name ?? "").toLowerCase();
+  if ( !n ) return false;
+  let list = "";
+  try { list = String(setting("recallFeatureNames") ?? ""); } catch { list = ""; }
+  return list.split(",").map(s => s.trim().toLowerCase()).filter(Boolean).some(k => n.includes(k));
+}
+
+/** The feature item an enchantment came from (origin "Actor.x.Item.y.Activity.z"). */
+function enchantSourceItem(effect) {
+  // dnd5e 6.x stores the enchant activity in system.origin.activity; older versions in effect.origin
+  const origin = String(effect?.system?.origin?.activity ?? effect?.origin ?? "");
+  const m = /^(.*?Item\.[^.]+)/.exec(origin);
+  if ( !m ) return null;
+  try { return fromUuidSync(m[1], { strict: false }); } catch { return null; }
+}
+
+/**
+ * A weapon bound through dnd5e itself: it carries an applied enchantment (e.g. from Warbond /
+ * Weapon Bond / Pact of the Blade) whose name or source feature is in the "recall features" list.
+ * Only for real Item documents on an actor.
+ */
+export function enchantBond(item) {
+  if ( !item?.effects || !item.actor || (item.type !== "weapon") ) return null;
+  for ( const e of item.effects ) {
+    if ( (e.type !== "enchantment") || e.disabled ) continue;
+    if ( e.system && ("isApplied" in e.system) && !e.system.isApplied ) continue;
+    const src = enchantSourceItem(e);
+    if ( !isBondName(e.name) && !isBondName(src?.name) ) continue;
+    const owner = src?.actor ?? item.actor;
+    return { key: `ench-${owner.id}-${item.id}`, ownerUuid: owner.uuid, via: "enchant", feature: src?.name ?? e.name };
+  }
+  return null;
 }
 
 export function loadTex(src) {

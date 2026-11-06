@@ -17,7 +17,9 @@ async function toggleBond(item) {
 
 function addContextOptions(item, options) {
   if ( !item?.isOwner || (item.type !== "weapon") || !item.actor || !isEligibleWeapon(item) ) return;
-  const bound = !!boundOf(item);
+  const b = boundOf(item);
+  if ( b?.via === "enchant" ) return; // bound by dnd5e (Warbond / Pact) – remove the enchantment there instead
+  const bound = !!b;
   options.push({
     label: bound ? L("Bound.Unbind") : L("Bound.Bind"),
     icon: bound ? "fa-solid fa-link-slash" : "fa-solid fa-link",
@@ -160,6 +162,8 @@ async function onUseActivity(activity) {
   const item = activity?.item;
   const actor = item?.actor;
   if ( !actor?.isOwner || !isRecallFeature(item) ) return;
+  // The enchant activity itself is the bonding ritual, not a recall
+  if ( activity.type === "enchant" ) return;
   const away = Object.keys(actor.getFlag(MODULE_ID, "boundAway") ?? {});
   if ( away.length ) {
     for ( const key of away ) await recall(actor, key);

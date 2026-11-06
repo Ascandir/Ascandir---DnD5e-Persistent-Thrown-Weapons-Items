@@ -133,7 +133,7 @@
       },
       "recallFeatureNames": {
         "Name": "Zurückrufen: Merkmale",
-        "Hint": "Kommagetrennt. Benutzt ein Charakter ein Merkmal, dessen Name einen dieser Begriffe enthält (z. B. Warbond, Pakt der Klinge), kehren seine gebundenen Waffen zurück."
+        "Hint": "Kommagetrennt. Waffen mit einer dnd5e-Verzauberung aus einem Merkmal mit diesem Namen (z. B. Warbond, Pakt der Klinge) gelten automatisch als gebunden. Benutzt der Charakter das Merkmal, kehren sie zurück."
       }
     },
     "Dialog": {
@@ -158,7 +158,7 @@
       "NotFound": "{item} wurde nicht gefunden – die Bindung wurde zurückgesetzt.",
       "NoToken": "Wähle zuerst deinen Token aus.",
       "NothingAway": "Deine gebundene Waffe ist schon bei dir.",
-      "NoneBound": "{feature}: Du hast noch keine gebundene Waffe. Rechtsklick auf die Waffe im Inventar → „Waffe binden (zurückrufbar)“."
+      "NoneBound": "{feature}: Keine gebundene Waffe gefunden. Binde sie zuerst über das Merkmal (Waffe hineinziehen) oder per Rechtsklick → „Waffe binden (zurückrufbar)“."
     }
   }
 }

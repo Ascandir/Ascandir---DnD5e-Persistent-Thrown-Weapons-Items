@@ -14,7 +14,8 @@ Geworfene Waffen verschwinden nicht mehr einfach:
 
 ## Gebundene Waffen (Waffenbund, Pakt der Klinge …)
 
-- **Binden:** Rechtsklick auf die Waffe im Inventar → „Waffe binden (zurückrufbar)“. Genauso wieder lösen.
+- **Binden über dnd5e:** Bindet der Charakter die Waffe mit seinem Merkmal (Warbond, Weapon Bond, Pakt der Klinge – Waffe ins Merkmal ziehen), erkennt das Modul die Verzauberung auf der Waffe und behandelt sie automatisch als gebunden.
+- **Binden von Hand** (für Merkmale ohne Verzauberung): Rechtsklick auf die Waffe im Inventar → „Waffe binden (zurückrufbar)“. Genauso wieder lösen.
 - **Zurückrufen:** Ist die gebundene Waffe weg (steckt im Gegner, liegt am Boden, hat jemand anderes aufgehoben oder gelootet), erscheint im Token-Menü (Rechtsklick auf den eigenen Token) ein Knopf mit dem Waffenbild. Klick → die Waffe fliegt animiert zurück in die Hand, ohne Angriff und ohne Schaden. Im Chat steht „(Bonusaktion)“ – erzwungen wird das nicht.
 - **Über das Klassenmerkmal:** Benutzt der Charakter sein Merkmal (z. B. „Warbond“, „Weapon Bond“, „Pakt der Klinge“) auf dem Charakterbogen, kehren seine gebundenen Waffen automatisch zurück. Die Namen sind in den Einstellungen anpassbar.
 - **Per Doppelklick:** Doppelklick auf die eigene gebundene Waffe (im Gegner oder am Boden). In Reichweite wird sie normal aufgehoben bzw. herausgezogen, außer Reichweite wird sie zurückgerufen.

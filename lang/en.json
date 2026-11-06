@@ -133,7 +133,7 @@
       },
       "recallFeatureNames": {
         "Name": "Recall: features",
-        "Hint": "Comma separated. When a character uses a feature whose name contains one of these words (e.g. Warbond, Pact of the Blade), their bound weapons return."
+        "Hint": "Comma separated. Weapons carrying a dnd5e enchantment from a feature with one of these names (e.g. Warbond, Pact of the Blade) count as bound automatically. Using the feature calls them back."
       }
     },
     "Dialog": {
@@ -158,7 +158,7 @@
       "NotFound": "{item} could not be found – the bond was reset.",
       "NoToken": "Select your token first.",
       "NothingAway": "Your bound weapon is already with you.",
-      "NoneBound": "{feature}: you don't have a bound weapon yet. Right-click the weapon in the inventory → 'Bind weapon (recallable)'."
+      "NoneBound": "{feature}: no bound weapon found. Bind one through the feature first (drag the weapon in) or right-click → 'Bind weapon (recallable)'."
     }
   }
 }
