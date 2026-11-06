@@ -145,7 +145,34 @@ function onRenderTokenHUD(hud, html) {
   }
 }
 
+/* ============================================ */
+/*  Using a class feature (Warbond, Pact …)      */
+/* ============================================ */
+
+function isRecallFeature(item) {
+  if ( !item || (item.type === "weapon") ) return false;
+  const name = String(item.name ?? "").toLowerCase();
+  const list = String(setting("recallFeatureNames") ?? "").split(",").map(s => s.trim().toLowerCase()).filter(Boolean);
+  return list.some(k => name.includes(k));
+}
+
+async function onUseActivity(activity) {
+  const item = activity?.item;
+  const actor = item?.actor;
+  if ( !actor?.isOwner || !isRecallFeature(item) ) return;
+  const away = Object.keys(actor.getFlag(MODULE_ID, "boundAway") ?? {});
+  if ( away.length ) {
+    for ( const key of away ) await recall(actor, key);
+    return;
+  }
+  const hasBound = actor.items.some(i => boundOf(i));
+  ui.notifications.info(hasBound ? L("Bound.NothingAway") : L("Bound.NoneBound", { feature: item.name }));
+}
+
 export function registerRecall() {
+  Hooks.on("dnd5e.postUseActivity", activity => {
+    onUseActivity(activity).catch(err => console.error(`${MODULE_ID} |`, err));
+  });
   Hooks.on("dnd5e.getItemContextOptions", (item, options) => addContextOptions(item, options));
   Hooks.on("renderTokenHUD", (hud, html) => onRenderTokenHUD(hud, html));
   const mod = game.modules.get(MODULE_ID);

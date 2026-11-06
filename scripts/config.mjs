@@ -51,6 +51,7 @@ export function registerSettings() {
     }
   });
   reg("recallBonusAction", Boolean, true);
+  reg("recallFeatureNames", String, "Warbond, Weapon Bond, Waffenbund, Waffenbindung, Pact of the Blade, Pakt der Klinge, Paktwaffe, Pact Weapon, Bound Weapon, Gebundene Waffe");
 
   // --- Aufheben / Herausziehen ---
   reg("pickupRange", Number, 5, { range: { min: 0, max: 30, step: 5 } });
