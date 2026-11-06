@@ -1,6 +1,6 @@
 import {
   MODULE_ID, L, setting, styleFor, isEligibleWeapon, ftToPx, tokenGapDistance, isGroundToken,
-  getActingToken, tokenForActor, singleItemData, randomBetween, boundOf
+  getActingToken, tokenForActor, singleItemData, randomBetween, boundOf, hudSlotsOf, restoreHudSlots
 } from "./config.mjs";
 import { requestGM, broadcast, gmHandlers, broadcastHandlers } from "./net.mjs";
 import { playThrow, planFlight } from "./anim.mjs";
@@ -94,6 +94,9 @@ export async function onRollAttack(rolls, { subject } = {}) {
   const quantity = item.system.quantity ?? 1;
   if ( quantity <= 0 ) return;
   const itemData = singleItemData(item);
+  // Remember the Combat-HUD weapon set slot, so the weapon goes back there when it returns
+  const hudSlots = hudSlotsOf(actor, item);
+  if ( hudSlots ) itemData.flags[MODULE_ID].hud = hudSlots;
   const bound = boundOf(item);
   const returning = !!item.system.properties?.has("ret") || (!!bound && (setting("boundMode") === "auto"));
   const posted = waitForPost(item.uuid);
@@ -258,14 +261,18 @@ export async function giveItem(actor, itemData) {
   if ( existing && ((existing.name !== itemData.name) || stuckIds.has(existing.id)) ) existing = null;
   existing ??= actor.items.find(i => (i.type === itemData.type) && (i.name === itemData.name) && !stuckIds.has(i.id)
     && (i.img === itemData.img));
+  let result;
   if ( existing ) {
     await existing.update({ "system.quantity": (existing.system.quantity ?? 0) + 1 });
-    return existing;
+    result = existing;
+  } else {
+    const data = foundry.utils.deepClone(itemData);
+    data.system.quantity = 1;
+    [result] = await actor.createEmbeddedDocuments("Item", [data]);
   }
-  const data = foundry.utils.deepClone(itemData);
-  data.system.quantity = 1;
-  const [created] = await actor.createEmbeddedDocuments("Item", [data]);
-  return created;
+  try { await restoreHudSlots(actor, itemData, result); }
+  catch(err) { console.warn(`${MODULE_ID} | Combat HUD slot`, err); }
+  return result;
 }
 
 /** Remove one piece of an item from an actor. */

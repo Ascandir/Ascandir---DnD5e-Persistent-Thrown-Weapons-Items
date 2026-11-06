@@ -238,9 +238,75 @@ export function singleItemData(item) {
     sourceItemId: prev.sourceItemId ?? item.id,
     sourceActorUuid: prev.sourceActorUuid ?? item.actor?.uuid ?? null
   };
+  if ( prev.hud ) data.flags[MODULE_ID].hud = prev.hud;
   const bond = prev.bound ?? enchantBond(item);
   if ( bond ) data.flags[MODULE_ID].bound = { key: bond.key, ownerUuid: bond.ownerUuid, via: bond.via ?? null };
   return data;
+}
+
+/* -------------------------------------------- */
+/*  Ascandir - Combat HUD: weapon set slots      */
+/* -------------------------------------------- */
+
+export const HUD_ID = "ascandir-combat-hud";
+
+function hudActive() {
+  return !!game.modules.get(HUD_ID)?.active;
+}
+
+function hudSets(actor) {
+  if ( !hudActive() ) return null;
+  try { return actor?.getFlag(HUD_ID, "weaponSets") ?? null; } catch { return null; }
+}
+
+/** Which Combat-HUD weapon set slots hold this weapon right now (remembered when it is thrown). */
+export function hudSlotsOf(actor, item) {
+  if ( !hudActive() ) return null;
+  const ws = hudSets(actor);
+  // No sets stored yet: the HUD fills set I from the equipped weapons, so remembering "equipped" is enough
+  if ( !ws?.sets ) {
+    return item.system?.equipped ? { actorUuid: actor.uuid, itemId: item.id, slots: [], equipped: true } : null;
+  }
+  const slots = [];
+  for ( const [set, s] of Object.entries(ws.sets) ) {
+    for ( const which of ["primary", "secondary"] ) if ( s?.[which] === item.id ) slots.push({ set, which });
+  }
+  if ( !slots.length ) return null;
+  return { actorUuid: actor.uuid, itemId: item.id, slots, equipped: !!item.system?.equipped };
+}
+
+/**
+ * The weapon is back with its owner: put it back into the weapon set slots it had,
+ * as long as those slots are still empty or still point at the old (gone) weapon.
+ */
+export async function restoreHudSlots(actor, itemData, item) {
+  const hud = itemData?.flags?.[MODULE_ID]?.hud;
+  if ( !hud || !item || (hud.actorUuid !== actor.uuid) ) return;
+  if ( !hudActive() ) return;
+  const current = hudSets(actor);
+  if ( !current?.sets ) {
+    if ( hud.equipped && ("equipped" in (item.system ?? {})) && !item.system.equipped ) {
+      await item.update({ "system.equipped": true });
+    }
+    return;
+  }
+  const ws = foundry.utils.deepClone(current);
+  let changed = false;
+  let inActive = false;
+  for ( const { set, which } of hud.slots ?? [] ) {
+    ws.sets[set] ??= {};
+    const cur = ws.sets[set][which];
+    if ( cur === item.id ) { inActive ||= (String(ws.active) === String(set)); continue; }
+    if ( !cur || (cur === hud.itemId) || !actor.items.has(cur) ) {
+      ws.sets[set][which] = item.id;
+      changed = true;
+      inActive ||= (String(ws.active) === String(set));
+    }
+  }
+  if ( changed ) await actor.setFlag(HUD_ID, "weaponSets", ws);
+  if ( hud.equipped && inActive && ("equipped" in (item.system ?? {})) && !item.system.equipped ) {
+    await item.update({ "system.equipped": true });
+  }
 }
 
 /** Bond data of a weapon (Item or item data): {key, ownerUuid} or null. */

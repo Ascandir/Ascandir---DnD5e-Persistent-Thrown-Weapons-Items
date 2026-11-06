@@ -23,6 +23,8 @@ Geworfene Waffen verschwinden nicht mehr einfach:
 
 ## Zusammenspiel mit anderen Modulen
 
+- **Ascandir - Combat HUD:** Lag die geworfene Waffe in einem Waffenset (I–III), kommt sie beim Aufheben, Herausziehen oder Zurückrufen automatisch wieder in denselben Slot. War sie im aktiven Set ausgerüstet, wird sie wieder ausgerüstet.
+
 - **Corpse Loot:** Lebt der Gegner noch, fragt ein Doppelklick auf ihn, ob du eine steckende Waffe herausziehen oder etwas anderes tun willst (z. B. bestehlen). Bei „Andere Aktion“ einfach nochmal doppelklicken. Ist der Gegner tot, übernimmt Corpse Loot wie gewohnt – die Waffe liegt dann in seinem Inventar.
 
 ## Ablauf am Tisch
