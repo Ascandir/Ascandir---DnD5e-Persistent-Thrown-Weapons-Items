@@ -16,6 +16,7 @@ Geworfene Waffen verschwinden nicht mehr einfach:
 
 - **Binden:** Rechtsklick auf die Waffe im Inventar → „Waffe binden (zurückrufbar)“. Genauso wieder lösen.
 - **Zurückrufen:** Ist die gebundene Waffe weg (steckt im Gegner, liegt am Boden, hat jemand anderes aufgehoben oder gelootet), erscheint im Token-Menü (Rechtsklick auf den eigenen Token) ein Knopf mit dem Waffenbild. Klick → die Waffe fliegt animiert zurück in die Hand, ohne Angriff und ohne Schaden. Im Chat steht „(Bonusaktion)“ – erzwungen wird das nicht.
+- **Per Doppelklick:** Doppelklick auf die eigene gebundene Waffe (im Gegner oder am Boden). In Reichweite wird sie normal aufgehoben bzw. herausgezogen, außer Reichweite wird sie zurückgerufen.
 - **Einstellung „Gebundene Waffen“:** „Von Hand zurückrufen“ (Standard) oder „Kehrt nach dem Wurf sofort zurück“ (wie eine zurückkehrende Waffe).
 
 ## Zusammenspiel mit anderen Modulen

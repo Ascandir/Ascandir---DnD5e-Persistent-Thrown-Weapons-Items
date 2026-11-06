@@ -115,7 +115,9 @@ export function getStuckEntries(tokenOrDoc) {
     .filter(([id, v]) => v && (!actor?.items || actor.items.has(id)))
     .map(([itemId, v]) => {
       const item = actor?.items?.get(itemId);
-      return { itemId, angle: v.angle ?? 0, img: item?.img ?? v.img, name: item?.name ?? v.name ?? "?" };
+      const ib = item?.flags?.[MODULE_ID]?.bound;
+      const bound = v.bound ?? (ib?.key ? ib : null);
+      return { itemId, angle: v.angle ?? 0, img: item?.img ?? v.img, name: item?.name ?? v.name ?? "?", bound };
     })
     .filter(e => e.img);
 }

@@ -5,6 +5,7 @@ import {
 import { requestGM, broadcast, gmHandlers, broadcastHandlers } from "./net.mjs";
 import { playThrow, planFlight } from "./anim.mjs";
 import { stuckIconAt, getStuckEntries } from "./overlay.mjs";
+import { recall } from "./recall.mjs";
 
 /** Item ids currently being used for a "pull out" attack (ignored by the throw hook). */
 const pullingItems = new Set();
@@ -322,7 +323,7 @@ gmHandlers.resolveThrow = async ({ sceneId, targetTokenId, attackerName, itemDat
     const data = foundry.utils.deepClone(itemData);
     const [created] = await tActor.createEmbeddedDocuments("Item", [data]);
     await tDoc.setFlag(MODULE_ID, `stuck.${created.id}`, {
-      angle: stuckAngle ?? 0, by: attackerName ?? null, img: data.img, name: data.name
+      angle: stuckAngle ?? 0, by: attackerName ?? null, img: data.img, name: data.name, bound: boundOf(data)
     });
     await chat(L("Chat.Stuck", { item: itemData.name, target: tDoc.name }));
     return { stuckItemId: created.id };
@@ -379,7 +380,9 @@ gmHandlers.pullReturn = async ({ sceneId, targetTokenId, removerActorUuid, itemI
   const data = singleItemData(item);
   await takeOne(remover, item);
   const [created] = await tActor.createEmbeddedDocuments("Item", [data]);
-  await tDoc.setFlag(MODULE_ID, `stuck.${created.id}`, { angle: angle ?? 0, img: data.img, name: data.name });
+  await tDoc.setFlag(MODULE_ID, `stuck.${created.id}`, {
+    angle: angle ?? 0, img: data.img, name: data.name, bound: boundOf(data)
+  });
   return { ok: true };
 };
 
@@ -436,8 +439,27 @@ export function onDeleteItem(item) {
 /*  Picking up                                  */
 /* ============================================ */
 
+/**
+ * If this weapon is bound to a creature the user owns, return that owner actor.
+ * Prefers the acting token's actor.
+ */
+function myBondOwner(bound, actingToken) {
+  if ( !bound?.key ) return null;
+  if ( actingToken?.actor?.uuid === bound.ownerUuid ) return actingToken.actor;
+  if ( actingToken || game.user.isGM ) return null; // acting as someone else → normal behaviour
+  let owner = null;
+  try { owner = bound.ownerUuid ? fromUuidSync(bound.ownerUuid) : null; } catch { owner = null; }
+  return owner?.isOwner ? owner : null;
+}
+
 async function pickUp(groundToken) {
   const picker = getActingToken();
+  const bound = boundOf(groundToken.document.getFlag(MODULE_ID, "ground")?.itemData);
+  const bondOwner = myBondOwner(bound, picker);
+  // Own bound weapon out of reach (or no token selected): call it back instead
+  if ( bondOwner && (!picker || (tokenGapDistance(picker, groundToken) > (setting("pickupRange") + 0.01))) ) {
+    return recall(bondOwner, bound.key);
+  }
   if ( !picker ) return ui.notifications.warn(L("Warn.SelectToken"));
   const range = setting("pickupRange");
   const dist = tokenGapDistance(picker, groundToken);
@@ -464,6 +486,12 @@ async function pullOut(targetToken, itemId) {
   if ( !item ) return;
   const sceneId = canvas.scene.id;
   const remover = getActingToken();
+
+  // Own bound weapon: call it back (no attack) when out of reach or without a selected token
+  const bondOwner = myBondOwner(item.bound, remover);
+  if ( bondOwner && (!remover || (tokenGapDistance(remover, targetToken) > (setting("pullRange") + 0.01))) ) {
+    return recall(bondOwner, item.bound.key);
+  }
 
   // GM without a token of their own: drop it next to the target.
   if ( !remover && game.user.isGM ) {

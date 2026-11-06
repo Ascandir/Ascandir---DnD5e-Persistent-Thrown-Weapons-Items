@@ -34,6 +34,7 @@ function addContextOptions(item, options) {
 export async function recall(actor, key) {
   if ( !actor?.isOwner ) return ui.notifications.warn(L("Warn.NoPermission"));
   const entry = actor.getFlag(MODULE_ID, `boundAway.${key}`) ?? {};
+  console.log(`${MODULE_ID} | Zurückrufen: ${actor.name} → ${entry.name ?? key}`);
   const token = canvas?.ready ? tokenForActor(actor) : null;
   const res = await requestGM("recall", {
     actorUuid: actor.uuid, key, sceneId: canvas.scene?.id ?? null, tokenId: token?.id ?? null
